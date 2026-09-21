@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --cai-ink: #17182b;
+    --cai-amber: #f5a623;
+    --cai-green: #8cf2c7;
+    --cai-teal: #0f6b63;
+  }
+
+  body {
+    background-color: #f8fafc;
+    color: #17182b;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+.font-code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.font-primary {
+  font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif;
+}
+

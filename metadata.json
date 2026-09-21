@@ -1,0 +1,6 @@
+{
+  "name": "Fortune's Code & AI Lab",
+  "description": "Interactive coding hublet and Mini AI lab for Primary, JSS, and SS students powered by FATap-CT with booklet tracking, parent review, and Master oversight.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
