@@ -211,7 +211,14 @@ export const EntryFlow: React.FC<EntryFlowProps> = ({
               onClick={() => handleQuickDemoPin('JSS-201')}
               className="px-2.5 py-1 rounded-md bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-900 font-bold font-mono transition-colors cursor-pointer"
             >
-              JSS-201 (JSS)
+              JSS-201 (JSS Python)
+            </button>
+            <button
+              id="demo-dt-btn"
+              onClick={() => handleQuickDemoPin('DT-301')}
+              className="px-2.5 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-900 font-bold font-mono transition-colors cursor-pointer"
+            >
+              DT-301 (JSS3 Digital Tech)
             </button>
             <button
               id="demo-ss-btn"
@@ -240,14 +247,18 @@ export const EntryFlow: React.FC<EntryFlowProps> = ({
               <div className="text-right">
                 <span
                   className={`inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
-                    matchedData.cls.tier === 'primary'
+                    matchedData.cls.programme === 'digital_technologies'
+                      ? 'bg-indigo-100 text-indigo-900 border border-indigo-300'
+                      : matchedData.cls.tier === 'primary'
                       ? 'bg-amber-100 text-amber-800 border border-amber-300'
                       : matchedData.cls.tier === 'jss'
                       ? 'bg-teal-100 text-teal-800 border border-teal-300'
                       : 'bg-[#17182B] text-[#8CF2C7] border border-[#8CF2C7]/30'
                   }`}
                 >
-                  {matchedData.cls.tier.toUpperCase()} TIER AUTO-DETECTED
+                  {matchedData.cls.programme === 'digital_technologies'
+                    ? 'JSS3 DIGITAL TECHNOLOGIES'
+                    : `${matchedData.cls.tier.toUpperCase()} TIER AUTO-DETECTED`}
                 </span>
                 <p className="text-[10px] text-slate-400 mt-1">
                   Tailored curriculum automatically unlocked
@@ -383,7 +394,7 @@ export const EntryFlow: React.FC<EntryFlowProps> = ({
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
             {/* Primary */}
             <div className="p-3.5 rounded-xl bg-amber-50/60 border border-amber-200/80 space-y-1">
               <div className="flex items-center justify-between">
@@ -399,11 +410,11 @@ export const EntryFlow: React.FC<EntryFlowProps> = ({
               </p>
             </div>
 
-            {/* JSS */}
+            {/* JSS Python */}
             <div className="p-3.5 rounded-xl bg-teal-50/60 border border-teal-200/80 space-y-1">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-black text-teal-900 uppercase tracking-wide">
-                  JSS1–3
+                  JSS1–3 Python
                 </span>
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-teal-100 text-teal-800">
                   Junior
@@ -414,11 +425,26 @@ export const EntryFlow: React.FC<EntryFlowProps> = ({
               </p>
             </div>
 
+            {/* JSS3 Digital Tech */}
+            <div className="p-3.5 rounded-xl bg-indigo-50/60 border border-indigo-200/80 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-indigo-900 uppercase tracking-wide">
+                  JSS3 Digital Tech
+                </span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800">
+                  Cyber Track
+                </span>
+              </div>
+              <p className="text-xs text-slate-700 leading-snug">
+                Cybersecurity, Secrets Lab ciphers, and networks.
+              </p>
+            </div>
+
             {/* SS */}
             <div className="p-3.5 rounded-xl bg-slate-100/70 border border-slate-300/80 space-y-1">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-black text-[#17182B] uppercase tracking-wide">
-                  SS1–2
+                  SS1–2 Python
                 </span>
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#17182B] text-[#8CF2C7]">
                   Senior
@@ -441,11 +467,11 @@ export const EntryFlow: React.FC<EntryFlowProps> = ({
               <Code2 className="w-4 h-4" />
             </div>
             <h2 className="text-base sm:text-lg font-black tracking-tight">
-              What you'll be coding with
+              What you'll be learning and working with
             </h2>
           </div>
           <p className="text-sm text-slate-700 leading-relaxed pl-9">
-            This app uses a simplified, beginner version of <strong className="font-extrabold text-[#17182B]">Python</strong> — the same language taught in the classroom scheme of work — running directly in the browser, plus a small rule-based <strong className="font-extrabold text-[#17182B]">Mini AI</strong> demo that guesses the mood of a sentence, to show one basic idea behind how AI works.
+            This app uses a simplified, beginner version of <strong className="font-extrabold text-[#17182B]">Python</strong> — the same language taught in the classroom scheme of work — running directly in the browser, alongside the <strong className="font-extrabold text-[#17182B]">Secrets Lab</strong> (with interactive cryptography and cipher wheels), and a rule-based <strong className="font-extrabold text-[#17182B]">Mini AI</strong> demo that guesses the mood of a sentence to illustrate core concepts of AI.
           </p>
 
           <div className="pl-9 flex items-center gap-2 pt-1 flex-wrap">
@@ -454,8 +480,12 @@ export const EntryFlow: React.FC<EntryFlowProps> = ({
               In-Browser Python Interpreter
             </span>
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200">
+              <Lock className="w-3 h-3 text-amber-600" />
+              Secrets Lab &amp; Cryptosystem
+            </span>
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200">
               <Bot className="w-3 h-3 text-blue-600" />
-              Rule-Based Sentiment Detector
+              Mini AI Sentiment Detector
             </span>
           </div>
         </div>

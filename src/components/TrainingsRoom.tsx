@@ -27,11 +27,11 @@ export function TrainingsRoom({ cls, student }: TrainingsRoomProps) {
 
   useEffect(() => {
     loadTrainings();
-  }, [cls.tier]);
+  }, [cls.tier, cls.programme]);
 
   const loadTrainings = async () => {
     setLoading(true);
-    const data = await db.getTrainings(cls.tier);
+    const data = await db.getTrainings(cls.tier, cls.programme || 'code_ai');
     setTrainings(data);
     setLoading(false);
   };
@@ -40,7 +40,7 @@ export function TrainingsRoom({ cls, student }: TrainingsRoomProps) {
     e.preventDefault();
     if (!newTitle.trim() || !newContent.trim()) return;
 
-    const created = await db.createTraining(cls.tier, newTitle, newContent);
+    const created = await db.createTraining(cls.tier, newTitle, newContent, cls.programme || 'code_ai');
     setTrainings((prev) => [created, ...prev]);
     setNewTitle('');
     setNewContent('');

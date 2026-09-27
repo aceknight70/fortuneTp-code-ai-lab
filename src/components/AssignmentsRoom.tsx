@@ -43,12 +43,14 @@ export function AssignmentsRoom({
 
   useEffect(() => {
     loadData();
-  }, [cls.tier, student.id]);
+  }, [cls.tier, cls.programme, student.id]);
+
+  const isDT = cls.programme === 'digital_technologies';
 
   const loadData = async () => {
     setLoading(true);
     const [asgs, subs, stFiles] = await Promise.all([
-      db.getAssignments(cls.tier, cls.school_id),
+      db.getAssignments(cls.tier, cls.school_id, cls.programme || 'code_ai'),
       db.getAssignmentSubmissions(student.id),
       db.getFiles(student.id),
     ]);
@@ -70,7 +72,7 @@ export function AssignmentsRoom({
     if (!selectedAssignment || !selectedFileId) return;
 
     setIsSubmitting(true);
-    const newSub = await db.submitAssignment(
+    await db.submitAssignment(
       selectedAssignment.id,
       student.id,
       selectedFileId
@@ -97,10 +99,12 @@ export function AssignmentsRoom({
             </span>
           </div>
           <h1 className="text-xl font-black text-[#17182B] tracking-tight">
-            Assignments &amp; Code Submissions — {cls.tier.toUpperCase()}
+            Assignments &amp; Submissions — {isDT ? 'Digital Technologies' : cls.tier.toUpperCase()}
           </h1>
           <p className="text-xs text-slate-500 mt-1 max-w-2xl">
-            Targeted programming challenges set by Fortune outside the weekly curriculum. Write your solution in the AI System Code Editor and turn it in here.
+            {isDT
+              ? 'Cybersecurity challenges, Caesar cryptanalysis, and network specification assignments set by Fortune and classroom teachers.'
+              : 'Targeted programming challenges set by Fortune outside the weekly curriculum. Write your solution in the AI System Code Editor and turn it in here.'}
           </p>
         </div>
 

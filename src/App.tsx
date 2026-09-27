@@ -18,6 +18,9 @@ import { AskQuestionRoom } from './components/AskQuestionRoom';
 import { AboutUsRoom } from './components/AboutUsRoom';
 import { HomeDashboardRoom } from './components/HomeDashboardRoom';
 import { FATapSplashScreen } from './components/FATapSplashScreen';
+import { SecretsLabRoom } from './components/SecretsLabRoom';
+import { DigitalTechPlayground } from './components/DigitalTechPlayground';
+import { FloatingGeminiGuide } from './components/FloatingGeminiGuide';
 
 export default function App() {
   const [currentRole, setCurrentRole] = useState<'entry' | 'student' | 'parent' | 'master'>('entry');
@@ -38,7 +41,7 @@ export default function App() {
   // Load weeks whenever class changes
   const loadClassData = async (cls: CaiClass, student: CaiStudent) => {
     setLoading(true);
-    const tierWeeks = await db.getWeeks(cls.tier);
+    const tierWeeks = await db.getWeeks(cls.tier, cls.programme || 'code_ai');
     const progress = await db.getStudentProgress(student.id);
 
     setWeeks(tierWeeks);
@@ -222,23 +225,39 @@ export default function App() {
                   />
                 )}
 
+                {studentRoom === 'secrets' && (
+                  <SecretsLabRoom cls={selectedClass} student={selectedStudent} />
+                )}
+
                 {studentRoom === 'lab' && activeWeek && (
                   <>
-                    {selectedClass.tier === 'jss' && (
-                      <JSSPlayground
+                    {selectedClass.programme === 'digital_technologies' ? (
+                      <DigitalTechPlayground
                         week={activeWeek}
                         student={selectedStudent}
                         existingProgress={currentAttempt}
                         onSaveProgress={handleSaveProgress}
+                        onNavigateToSecretsLab={() => setStudentRoom('secrets')}
                       />
-                    )}
-                    {selectedClass.tier === 'ss' && (
-                      <SSPlayground
-                        week={activeWeek}
-                        student={selectedStudent}
-                        existingProgress={currentAttempt}
-                        onSaveProgress={handleSaveProgress}
-                      />
+                    ) : (
+                      <>
+                        {selectedClass.tier === 'jss' && (
+                          <JSSPlayground
+                            week={activeWeek}
+                            student={selectedStudent}
+                            existingProgress={currentAttempt}
+                            onSaveProgress={handleSaveProgress}
+                          />
+                        )}
+                        {selectedClass.tier === 'ss' && (
+                          <SSPlayground
+                            week={activeWeek}
+                            student={selectedStudent}
+                            existingProgress={currentAttempt}
+                            onSaveProgress={handleSaveProgress}
+                          />
+                        )}
+                      </>
                     )}
                   </>
                 )}
@@ -333,6 +352,15 @@ export default function App() {
             </>
           )}
         </main>
+      )}
+
+      {/* Floating Gemini AI Guide */}
+      {currentRole !== 'entry' && (
+        <FloatingGeminiGuide
+          cls={selectedClass}
+          student={selectedStudent}
+          currentRoom={studentRoom}
+        />
       )}
     </div>
   );

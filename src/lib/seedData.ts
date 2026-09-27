@@ -14,6 +14,12 @@ import {
   CaiFileVersion,
   CaiQuestion,
 } from '../types';
+import {
+  DT_WEEKS,
+  DT_ASSIGNMENTS,
+  DT_PROJECTS,
+  DT_TRAININGS,
+} from './digitalTechData';
 
 export const SEED_SCHOOLS: CaiSchool[] = [
   {
@@ -34,6 +40,7 @@ export const SEED_CLASSES: CaiClass[] = [
     school_id: 'sch-001',
     name: 'Primary 4 Emerald',
     tier: 'primary',
+    programme: 'code_ai',
     class_pin: 'PRI-401',
     created_at: new Date('2026-01-10T08:30:00Z').toISOString(),
   },
@@ -42,6 +49,7 @@ export const SEED_CLASSES: CaiClass[] = [
     school_id: 'sch-001',
     name: 'Primary 5 Sapphire',
     tier: 'primary',
+    programme: 'code_ai',
     class_pin: 'PRI-502',
     created_at: new Date('2026-01-10T08:35:00Z').toISOString(),
   },
@@ -50,15 +58,17 @@ export const SEED_CLASSES: CaiClass[] = [
     school_id: 'sch-001',
     name: 'JSS 2 Gold',
     tier: 'jss',
+    programme: 'code_ai',
     class_pin: 'JSS-201',
     created_at: new Date('2026-01-10T08:40:00Z').toISOString(),
   },
   {
     id: 'cls-004',
     school_id: 'sch-002',
-    name: 'JSS 3 Diamond',
+    name: 'JSS 3 Diamond (Digital Tech)',
     tier: 'jss',
-    class_pin: 'JSS-302',
+    programme: 'digital_technologies',
+    class_pin: 'DT-301',
     created_at: new Date('2026-01-15T09:00:00Z').toISOString(),
   },
   {
@@ -66,6 +76,7 @@ export const SEED_CLASSES: CaiClass[] = [
     school_id: 'sch-001',
     name: 'SS 1 Blue',
     tier: 'ss',
+    programme: 'code_ai',
     class_pin: 'SS-101',
     created_at: new Date('2026-01-10T08:45:00Z').toISOString(),
   },
@@ -74,6 +85,7 @@ export const SEED_CLASSES: CaiClass[] = [
     school_id: 'sch-002',
     name: 'SS 2 Ruby',
     tier: 'ss',
+    programme: 'code_ai',
     class_pin: 'SS-202',
     created_at: new Date('2026-01-15T09:15:00Z').toISOString(),
   },
@@ -879,6 +891,7 @@ print("==================================================")`,
     },
     updated_at: new Date('2026-01-10T10:00:00Z').toISOString(),
   },
+  ...DT_WEEKS,
 ];
 
 export const SEED_PROGRESS: CaiProgress[] = [
@@ -1116,6 +1129,7 @@ Review: How iteration algorithms enable batch processing and data analytics.`,
 This training explains the evolutionary leap from rule-based heuristic systems to Large Language Models (LLMs) like Gemini.`,
     created_at: new Date('2026-01-18T16:00:00Z').toISOString(),
   },
+  ...DT_TRAININGS,
 ];
 
 export const SEED_ASSIGNMENTS: CaiAssignment[] = [
@@ -1156,6 +1170,7 @@ Use if/elif/else statements to print 'Distinction' if score >= 75, 'Pass' if sco
     due_note: 'by Friday evening',
     created_at: new Date('2026-01-22T08:00:00Z').toISOString(),
   },
+  ...DT_ASSIGNMENTS,
 ];
 
 export const SEED_ASSIGNMENT_SUBMISSIONS: CaiAssignmentSubmission[] = [
@@ -1191,6 +1206,7 @@ Requirements:
 3. Print an advisory warning ('Heat Alert') if the average exceeds 32°C.`,
     created_at: new Date('2026-01-15T08:00:00Z').toISOString(),
   },
+  ...DT_PROJECTS,
 ];
 
 export const SEED_PROJECT_SUBMISSIONS: CaiProjectSubmission[] = [

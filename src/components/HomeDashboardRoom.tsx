@@ -12,6 +12,7 @@ import {
   ArrowRight,
   FileCode,
   Award,
+  Lock,
 } from 'lucide-react';
 import { CaiClass, CaiFile, CaiProgress, CaiStudent, CaiWeek } from '../types';
 import { StudentNavRoom } from './SideNav';
@@ -37,6 +38,7 @@ export function HomeDashboardRoom({
   onSelectWeekForLab,
 }: HomeDashboardRoomProps) {
   const [recentFiles, setRecentFiles] = useState<CaiFile[]>([]);
+  const isDT = cls.programme === 'digital_technologies';
 
   useEffect(() => {
     loadRecentFiles();
@@ -61,23 +63,35 @@ export function HomeDashboardRoom({
             <span>Welcome back, {student.full_name}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-            {cls.name} • {cls.tier.toUpperCase()} Coding Hub
+            {cls.name} • {isDT ? 'JSS3 Digital Technologies' : `${cls.tier.toUpperCase()} Coding Hub`}
           </h1>
           <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
-            Ready to build? Dive into the <strong>AI System</strong> IDE for open-ended Python programming, or complete your Week {currentWeekNumber} curriculum challenge below.
+            {isDT
+              ? 'Ready to investigate? Explore the classified Secrets Lab for Caesar ciphers, binary decoding, and cyber defenses, or complete your weekly lab challenge below.'
+              : 'Ready to build? Dive into the AI System IDE for open-ended Python programming, or complete your Week ' + currentWeekNumber + ' curriculum challenge below.'}
           </p>
         </div>
 
-        {/* Big Launch AI System CTA */}
+        {/* Big Launch CTA */}
         <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <button
-            id="dashboard-launch-ide"
-            onClick={() => onNavigateRoom('editor')}
-            className="flex items-center justify-center gap-2 px-6 py-3.5 bg-[#F5A623] hover:bg-amber-400 text-[#17182B] rounded-xl text-sm font-black transition shadow-md"
-          >
-            <Terminal className="w-4 h-4" />
-            <span>Open AI System (IDE)</span>
-          </button>
+          {isDT ? (
+            <button
+              onClick={() => onNavigateRoom('secrets')}
+              className="flex items-center justify-center gap-2 px-6 py-3.5 bg-[#F5A623] hover:bg-amber-400 text-[#17182B] rounded-xl text-sm font-black transition shadow-md cursor-pointer"
+            >
+              <Lock className="w-4 h-4" />
+              <span>Enter Secrets Lab</span>
+            </button>
+          ) : (
+            <button
+              id="dashboard-launch-ide"
+              onClick={() => onNavigateRoom('editor')}
+              className="flex items-center justify-center gap-2 px-6 py-3.5 bg-[#F5A623] hover:bg-amber-400 text-[#17182B] rounded-xl text-sm font-black transition shadow-md cursor-pointer"
+            >
+              <Terminal className="w-4 h-4" />
+              <span>Open AI System (IDE)</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -214,6 +228,48 @@ export function HomeDashboardRoom({
         <div className="lg:col-span-5 space-y-3">
           <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1">
             Quick Hub Rooms
+          </div>
+
+          {/* Secrets Lab Room */}
+          <div
+            onClick={() => onNavigateRoom('secrets')}
+            className={`p-4 rounded-xl border shadow-2xs hover:shadow-xs cursor-pointer transition flex items-center justify-between group ${
+              isDT
+                ? 'bg-[#17182B] text-white border-amber-500/50 hover:border-amber-400'
+                : 'bg-white border-slate-200 hover:border-slate-300'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                  isDT ? 'bg-[#F5A623] text-[#17182B]' : 'bg-amber-100 text-amber-800'
+                }`}
+              >
+                <Lock className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <h4
+                    className={`font-bold text-xs transition ${
+                      isDT ? 'text-white group-hover:text-[#F5A623]' : 'text-[#17182B] group-hover:text-[#F5A623]'
+                    }`}
+                  >
+                    Secrets Lab
+                  </h4>
+                  <span className="text-[9px] px-1.5 py-0.2 rounded font-mono font-bold bg-[#F5A623] text-[#17182B] uppercase">
+                    CIPHER
+                  </span>
+                </div>
+                <p className={`text-[11px] ${isDT ? 'text-slate-300' : 'text-slate-500'}`}>
+                  Cryptography, ciphers &amp; cyber defense
+                </p>
+              </div>
+            </div>
+            <ArrowRight
+              className={`w-4 h-4 transition ${
+                isDT ? 'text-[#F5A623]' : 'text-slate-300 group-hover:text-[#F5A623]'
+              }`}
+            />
           </div>
 
           {/* Scheme of Work */}

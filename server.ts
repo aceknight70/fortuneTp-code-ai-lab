@@ -11,7 +11,14 @@ function getGeminiClient(): GoogleGenAI | null {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || apiKey === 'MY_GEMINI_API_KEY') return null;
   if (!aiClient) {
-    aiClient = new GoogleGenAI({ apiKey });
+    aiClient = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        },
+      },
+    });
   }
   return aiClient;
 }
@@ -25,6 +32,86 @@ async function startServer() {
   // Health check
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', service: 'Code & AI Lab Server' });
+  });
+
+  // Floating Gemini AI Guide Endpoint
+  app.post('/api/ai/guide', async (req, res) => {
+    try {
+      const {
+        message = '',
+        programme = 'code_ai',
+        tier = 'jss',
+        room = 'home',
+        studentName = 'Student',
+        history = [],
+      } = req.body;
+
+      const ai = getGeminiClient();
+
+      if (!ai) {
+        const offlineReply = generateOfflineGuideReply(message, programme, tier, room, studentName);
+        res.json({ reply: offlineReply });
+        return;
+      }
+
+      const isDT = programme === 'digital_technologies';
+      const systemInstruction = `You are Fortune's AI Guide, a friendly, encouraging computer science and digital technology tutor at Fortune's Code & AI Lab (powered by FATap-CT) in Nigeria.
+You are assisting ${studentName}, who is currently in the ${tier.toUpperCase()} tier (${
+        isDT
+          ? 'JSS3 Digital Technologies Track, covering Cybersecurity, Cryptography & Secrets Lab, Networks, Information Privacy, Digital Law & AI Ethics'
+          : tier === 'primary'
+          ? 'Primary Tier (Visual Block Building)'
+          : tier === 'jss'
+          ? 'JSS Junior Secondary School Python Track (Variables, conditionals, arithmetic)'
+          : 'SS Senior Secondary School Python Track (Algorithms, loops, problem solving)'
+      }).
+The student is currently inside the "${room}" room.
+
+PEDAGOGICAL TEACHING STYLE:
+1. Warm, conversational, inspiring, and concise (2-4 short paragraphs maximum).
+2. Never just blurt out direct test answers or code cheats; explain the fundamental intuition step-by-step so the student feels confident.
+3. Use relatable Nigerian everyday examples (e.g. Lagos traffic, market trade, sending bank tokens, school exams, mobile data top-up, street addresses) to make abstract ideas crystal clear.
+4. When talking about cybersecurity or the Secrets Lab: highlight ethical responsibility (white-hat defense, protecting personal privacy and school records).
+5. Always sign off or encourage them with warmth.`;
+
+      // Build context from history
+      const formattedHistory = Array.isArray(history)
+        ? history
+            .slice(-6)
+            .map((h: { role: string; content: string }) => `${h.role === 'user' ? 'Student' : 'Guide'}: ${h.content}`)
+            .join('\n')
+        : '';
+
+      const fullPrompt = `${systemInstruction}
+
+Conversation History:
+${formattedHistory || '(No previous history)'}
+
+Current Student Question: "${message}"
+
+Your reply:`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.8-flash',
+        contents: fullPrompt,
+        config: {
+          temperature: 0.6,
+        },
+      });
+
+      const replyText = response.text || generateOfflineGuideReply(message, programme, tier, room, studentName);
+      res.json({ reply: replyText });
+    } catch (err: unknown) {
+      console.error('AI Guide error:', err);
+      const fallback = generateOfflineGuideReply(
+        req.body?.message || '',
+        req.body?.programme || 'code_ai',
+        req.body?.tier || 'jss',
+        req.body?.room || 'home',
+        req.body?.studentName || 'Student'
+      );
+      res.json({ reply: fallback });
+    }
   });
 
   // AI Assist Endpoint
@@ -223,6 +310,85 @@ function generateOfflineTutorResponse(
     whatChanged: '',
     suggestedCode: null,
   };
+}
+
+function generateOfflineGuideReply(
+  message: string,
+  programme: string,
+  tier: string,
+  _room: string,
+  studentName: string
+): string {
+  const lower = message.toLowerCase();
+
+  if (programme === 'digital_technologies') {
+    if (lower.includes('caesar') || lower.includes('cipher') || lower.includes('secret')) {
+      return `Hello ${studentName}! The Caesar Cipher is one of the oldest encryption methods. Think of it like shifting the letters along a carousel. If your shift key is 3, then 'A' hops forward 3 positions to become 'D', 'B' becomes 'E', and 'C' becomes 'F'! 
+
+To decrypt it, the recipient shifts every letter backwards by the exact same key. Head over to our Secrets Lab room in the sidebar to spin the live cipher wheel yourself! 🔐`;
+    }
+
+    if (lower.includes('phish') || lower.includes('scam') || lower.includes('email')) {
+      return `Great cybersecurity question, ${studentName}! Phishing is when malicious actors send fake emails, SMS, or WhatsApp links pretending to be a bank or school official to steal sensitive details like passwords or PINs.
+
+Defense rule: Always verify the sender address, avoid rushing into suspicious links, and never share confidential tokens!`;
+    }
+
+    if (lower.includes('password') || lower.includes('hash') || lower.includes('entropy')) {
+      return `Passwords are your digital fortress! Instead of short simple words, combine 3-4 random memorable words with symbols and numbers (passphrase). 
+
+In modern systems, passwords aren't stored in plain text — they are passed through a cryptographic hash function like SHA-256 to generate an irreversible unique digest!`;
+    }
+
+    if (lower.includes('network') || lower.includes('lan') || lower.includes('ip') || lower.includes('dns')) {
+      return `Think of computer networks like postal delivery! Every computer on the Internet gets a unique IP address (like a home address). 
+
+DNS (Domain Name System) translates human-friendly domain names into computer IP numbers. In your school lab, devices connect through a Local Area Network (LAN) switch or router.`;
+    }
+
+    return `Hello ${studentName}! I am Fortune's AI Guide for the JSS3 Digital Technologies track. 
+Whether you're exploring the Secrets Lab ciphers, investigating network protocols, analyzing cyber defenses, or preparing your Capstone Project, I am right here to help you understand every concept! 
+
+What would you like to explore today?`;
+  }
+
+  // Code & AI track
+  if (lower.includes('variable') || lower.includes('store')) {
+    return `In Python, a variable is like a labelled storage box in your classroom! For example:
+\`\`\`python
+student_name = "${studentName}"
+score = 95
+\`\`\`
+Whenever you print(student_name), Python retrieves the value stored inside the box!`;
+  }
+
+  if (lower.includes('if') || lower.includes('condition') || lower.includes('decision')) {
+    return `An if-statement lets your program make smart decisions based on conditions:
+\`\`\`python
+if score >= 50:
+    print("Pass! Excellent work 🎉")
+else:
+    print("Keep practicing, you will get it! 💪")
+\`\`\`
+Notice the colon (:) at the end of the condition and the 4 spaces of indentation!`;
+  }
+
+  if (lower.includes('loop') || lower.includes('range')) {
+    if (tier === 'jss') {
+      return `In JSS Python, we focus on sequential instructions and conditionals (if/elif/else). Repeating loops are introduced in Senior Secondary (SS), but you can build wonderful decision-making programs right now!`;
+    }
+    return `Loops in SS Python automate repetition using for-loops:
+\`\`\`python
+for num in range(1, 6):
+    print("Count:", num)
+\`\`\`
+Python runs the indented code repeatedly for each number from 1 up to 5!`;
+  }
+
+  return `Hello ${studentName}! I am Fortune's AI Guide at the Code & AI Lab. 
+I'm here to guide your computational thinking, explain programming concepts, and help you solve challenges step-by-step. 
+
+Feel free to ask a question or pick one of the quick suggestions! 🚀`;
 }
 
 startServer();

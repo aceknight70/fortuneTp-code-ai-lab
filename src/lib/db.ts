@@ -7,6 +7,7 @@ import {
   CaiStudent,
   CaiWeek,
   Tier,
+  Programme,
   CaiFile,
   CaiFileVersion,
   CaiTraining,
@@ -80,19 +81,48 @@ function setLocalItem<T>(key: string, value: T): void {
   }
 }
 
-// Initial hydration
+// Initial hydration & migration check
 export function ensureDatabaseSeeded(): void {
+  // Check if classes need Digital Technologies update
+  const storedClasses = getLocalItem<CaiClass[]>('classes', []);
+  const hasDTClass = storedClasses.some((c) => c.programme === 'digital_technologies' || c.class_pin === 'DT-301');
+  if (!storedClasses.length || !hasDTClass) {
+    setLocalItem('classes', SEED_CLASSES);
+  }
+
+  // Check if weeks need Digital Technologies curriculum update
+  const storedWeeks = getLocalItem<CaiWeek[]>('weeks', []);
+  const hasDTWeeks = storedWeeks.some((w) => w.programme === 'digital_technologies');
+  if (!storedWeeks.length || !hasDTWeeks) {
+    setLocalItem('weeks', SEED_WEEKS);
+  }
+
+  // Check assignments
+  const storedAssignments = getLocalItem<CaiAssignment[]>('assignments', []);
+  const hasDTAssignments = storedAssignments.some((a) => a.programme === 'digital_technologies');
+  if (!storedAssignments.length || !hasDTAssignments) {
+    setLocalItem('assignments', SEED_ASSIGNMENTS);
+  }
+
+  // Check projects
+  const storedProjects = getLocalItem<CaiProject[]>('projects', []);
+  const hasDTProjects = storedProjects.some((p) => p.programme === 'digital_technologies');
+  if (!storedProjects.length || !hasDTProjects) {
+    setLocalItem('projects', SEED_PROJECTS);
+  }
+
+  // Check trainings
+  const storedTrainings = getLocalItem<CaiTraining[]>('trainings', []);
+  const hasDTTrainings = storedTrainings.some((t) => t.programme === 'digital_technologies');
+  if (!storedTrainings.length || !hasDTTrainings) {
+    setLocalItem('trainings', SEED_TRAININGS);
+  }
+
   if (!localStorage.getItem(`${STORAGE_KEY_PREFIX}schools`)) {
     setLocalItem('schools', SEED_SCHOOLS);
   }
-  if (!localStorage.getItem(`${STORAGE_KEY_PREFIX}classes`)) {
-    setLocalItem('classes', SEED_CLASSES);
-  }
   if (!localStorage.getItem(`${STORAGE_KEY_PREFIX}students`)) {
     setLocalItem('students', SEED_STUDENTS);
-  }
-  if (!localStorage.getItem(`${STORAGE_KEY_PREFIX}weeks`)) {
-    setLocalItem('weeks', SEED_WEEKS);
   }
   if (!localStorage.getItem(`${STORAGE_KEY_PREFIX}progress`)) {
     setLocalItem('progress', SEED_PROGRESS);
@@ -103,17 +133,8 @@ export function ensureDatabaseSeeded(): void {
   if (!localStorage.getItem(`${STORAGE_KEY_PREFIX}file_versions`)) {
     setLocalItem('file_versions', SEED_FILE_VERSIONS);
   }
-  if (!localStorage.getItem(`${STORAGE_KEY_PREFIX}trainings`)) {
-    setLocalItem('trainings', SEED_TRAININGS);
-  }
-  if (!localStorage.getItem(`${STORAGE_KEY_PREFIX}assignments`)) {
-    setLocalItem('assignments', SEED_ASSIGNMENTS);
-  }
   if (!localStorage.getItem(`${STORAGE_KEY_PREFIX}assignment_submissions`)) {
     setLocalItem('assignment_submissions', SEED_ASSIGNMENT_SUBMISSIONS);
-  }
-  if (!localStorage.getItem(`${STORAGE_KEY_PREFIX}projects`)) {
-    setLocalItem('projects', SEED_PROJECTS);
   }
   if (!localStorage.getItem(`${STORAGE_KEY_PREFIX}project_submissions`)) {
     setLocalItem('project_submissions', SEED_PROJECT_SUBMISSIONS);
@@ -135,7 +156,31 @@ export const db = {
   } | null> {
     const cleanPin = pin.trim().toUpperCase();
 
-    // Try Supabase first if connected
+    // Local check with alias matching (e.g. DT-301 or legacy JSS-302 both match JSS3 DT)
+    const classes = getLocalItem<CaiClass[]>('classes', SEED_CLASSES);
+    const matchedClass = classes.find(
+      (c) =>
+        c.class_pin.trim().toUpperCase() === cleanPin ||
+        (cleanPin === 'JSS-302' && (c.id === 'cls-004' || c.class_pin === 'DT-301')) ||
+        (cleanPin === 'DT-301' && (c.id === 'cls-004' || c.class_pin === 'JSS-302'))
+    );
+
+    if (matchedClass) {
+      const schools = getLocalItem<CaiSchool[]>('schools', SEED_SCHOOLS);
+      const school = schools.find((s) => s.id === matchedClass.school_id) || {
+        id: matchedClass.school_id,
+        name: "Fortune's TP Academy",
+        created_at: '',
+      };
+
+      const students = getLocalItem<CaiStudent[]>('students', SEED_STUDENTS).filter(
+        (s) => s.class_id === matchedClass.id
+      ).sort((a, b) => a.full_name.localeCompare(b.full_name));
+
+      return { cls: matchedClass, school, students };
+    }
+
+    // Try Supabase if connected
     if (supabaseClient) {
       try {
         const { data: classData, error: classErr } = await supabaseClient
@@ -164,34 +209,15 @@ export const db = {
           };
         }
       } catch (e) {
-        console.warn('Supabase pin query error, checking local store:', e);
+        console.warn('Supabase pin query error:', e);
       }
     }
 
-    // Local fallback
-    const classes = getLocalItem<CaiClass[]>('classes', SEED_CLASSES);
-    const matchedClass = classes.find(
-      (c) => c.class_pin.trim().toUpperCase() === cleanPin
-    );
-
-    if (!matchedClass) return null;
-
-    const schools = getLocalItem<CaiSchool[]>('schools', SEED_SCHOOLS);
-    const school = schools.find((s) => s.id === matchedClass.school_id) || {
-      id: matchedClass.school_id,
-      name: "Fortune's TP Academy",
-      created_at: '',
-    };
-
-    const students = getLocalItem<CaiStudent[]>('students', SEED_STUDENTS).filter(
-      (s) => s.class_id === matchedClass.id
-    ).sort((a, b) => a.full_name.localeCompare(b.full_name));
-
-    return { cls: matchedClass, school, students };
+    return null;
   },
 
-  // Get Weeks for tier (1-13)
-  async getWeeks(tier: Tier): Promise<CaiWeek[]> {
+  // Get Weeks for tier and programme (1-13)
+  async getWeeks(tier: Tier, programme: Programme = 'code_ai'): Promise<CaiWeek[]> {
     if (supabaseClient) {
       try {
         const { data, error } = await supabaseClient
@@ -201,7 +227,8 @@ export const db = {
           .order('week_number', { ascending: true });
 
         if (!error && data && data.length > 0) {
-          return data as CaiWeek[];
+          const filtered = (data as CaiWeek[]).filter((w) => (w.programme || 'code_ai') === programme);
+          if (filtered.length > 0) return filtered;
         }
       } catch (e) {
         console.warn('Supabase getWeeks error:', e);
@@ -210,7 +237,10 @@ export const db = {
 
     const weeks = getLocalItem<CaiWeek[]>('weeks', SEED_WEEKS);
     return weeks
-      .filter((w) => w.tier === tier)
+      .filter((w) => {
+        const wProg = w.programme || 'code_ai';
+        return w.tier === tier && wProg === programme;
+      })
       .sort((a, b) => a.week_number - b.week_number);
   },
 
@@ -652,7 +682,7 @@ export const db = {
   },
 
   // ============ TRAININGS ============
-  async getTrainings(tier: Tier): Promise<CaiTraining[]> {
+  async getTrainings(tier: Tier, programme: Programme = 'code_ai'): Promise<CaiTraining[]> {
     if (supabaseClient) {
       try {
         const { data, error } = await supabaseClient
@@ -660,21 +690,28 @@ export const db = {
           .select('*')
           .eq('tier', tier)
           .order('created_at', { ascending: false });
-        if (!error && data) return data as CaiTraining[];
+        if (!error && data) {
+          const filtered = (data as CaiTraining[]).filter((t) => (t.programme || 'code_ai') === programme);
+          if (filtered.length > 0) return filtered;
+        }
       } catch (err) {
         console.warn('Supabase getTrainings error:', err);
       }
     }
-    const trainings = getLocalItem<CaiTraining[]>('trainings', []);
+    const trainings = getLocalItem<CaiTraining[]>('trainings', SEED_TRAININGS);
     return trainings
-      .filter((t) => t.tier === tier)
+      .filter((t) => {
+        const tProg = t.programme || 'code_ai';
+        return t.tier === tier && tProg === programme;
+      })
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   },
 
-  async createTraining(tier: Tier, title: string, content: string): Promise<CaiTraining> {
+  async createTraining(tier: Tier, title: string, content: string, programme: Programme = 'code_ai'): Promise<CaiTraining> {
     const newTrn: CaiTraining = {
       id: `trn-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       tier,
+      programme,
       title: title.trim(),
       content: content.trim(),
       created_at: new Date().toISOString(),
@@ -693,13 +730,13 @@ export const db = {
       }
     }
 
-    const trainings = getLocalItem<CaiTraining[]>('trainings', []);
+    const trainings = getLocalItem<CaiTraining[]>('trainings', SEED_TRAININGS);
     setLocalItem('trainings', [newTrn, ...trainings]);
     return newTrn;
   },
 
   // ============ ASSIGNMENTS ============
-  async getAssignments(tier: Tier, schoolId?: string | null): Promise<CaiAssignment[]> {
+  async getAssignments(tier: Tier, schoolId?: string | null, programme: Programme = 'code_ai'): Promise<CaiAssignment[]> {
     if (supabaseClient) {
       try {
         let q = supabaseClient.from('cai_assignments').select('*').eq('tier', tier);
@@ -707,14 +744,20 @@ export const db = {
           q = q.or(`school_id.is.null,school_id.eq.${schoolId}`);
         }
         const { data, error } = await q.order('created_at', { ascending: false });
-        if (!error && data) return data as CaiAssignment[];
+        if (!error && data) {
+          const filtered = (data as CaiAssignment[]).filter((a) => (a.programme || 'code_ai') === programme);
+          if (filtered.length > 0) return filtered;
+        }
       } catch (err) {
         console.warn('Supabase getAssignments error:', err);
       }
     }
-    const assignments = getLocalItem<CaiAssignment[]>('assignments', []);
+    const assignments = getLocalItem<CaiAssignment[]>('assignments', SEED_ASSIGNMENTS);
     return assignments
-      .filter((a) => a.tier === tier && (!a.school_id || a.school_id === schoolId))
+      .filter((a) => {
+        const aProg = a.programme || 'code_ai';
+        return a.tier === tier && aProg === programme && (!a.school_id || a.school_id === schoolId);
+      })
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   },
 
@@ -811,7 +854,7 @@ export const db = {
   },
 
   // ============ PROJECTS ============
-  async getProjects(tier: Tier): Promise<CaiProject[]> {
+  async getProjects(tier: Tier, programme: Programme = 'code_ai'): Promise<CaiProject[]> {
     if (supabaseClient) {
       try {
         const { data, error } = await supabaseClient
@@ -819,23 +862,31 @@ export const db = {
           .select('*')
           .eq('tier', tier)
           .order('created_at', { ascending: false });
-        if (!error && data) return data as CaiProject[];
+        if (!error && data) {
+          const filtered = (data as CaiProject[]).filter((p) => (p.programme || 'code_ai') === programme);
+          if (filtered.length > 0) return filtered;
+        }
       } catch (err) {
         console.warn('Supabase getProjects error:', err);
       }
     }
-    const projects = getLocalItem<CaiProject[]>('projects', []);
+    const projects = getLocalItem<CaiProject[]>('projects', SEED_PROJECTS);
     return projects
-      .filter((p) => p.tier === tier)
+      .filter((p) => {
+        const pProg = p.programme || 'code_ai';
+        return p.tier === tier && pProg === programme;
+      })
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   },
 
-  async createProject(tier: Tier, title: string, description: string): Promise<CaiProject> {
+  async createProject(tier: Tier, title: string, description: string, programme: Programme = 'code_ai', deliverables?: string[]): Promise<CaiProject> {
     const newPrj: CaiProject = {
       id: `prj-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       tier,
+      programme,
       title: title.trim(),
       description: description.trim(),
+      deliverables,
       created_at: new Date().toISOString(),
     };
 
@@ -852,7 +903,7 @@ export const db = {
       }
     }
 
-    const projects = getLocalItem<CaiProject[]>('projects', []);
+    const projects = getLocalItem<CaiProject[]>('projects', SEED_PROJECTS);
     setLocalItem('projects', [newPrj, ...projects]);
     return newPrj;
   },
@@ -882,13 +933,21 @@ export const db = {
   async submitProject(
     projectId: string,
     studentId: string,
-    fileId?: string | null
+    fileId?: string | null,
+    notes?: string,
+    externalLink?: string,
+    whatsappSentTeacher = false,
+    whatsappSentFortune = false
   ): Promise<CaiProjectSubmission> {
     const newSub: CaiProjectSubmission = {
       id: `psub-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       project_id: projectId,
       student_id: studentId,
       file_id: fileId || null,
+      notes: notes || '',
+      external_link: externalLink || '',
+      whatsapp_sent_teacher: whatsappSentTeacher,
+      whatsapp_sent_fortune: whatsappSentFortune,
       submitted_at: new Date().toISOString(),
     };
 
@@ -911,6 +970,21 @@ export const db = {
     );
     setLocalItem('project_submissions', [newSub, ...filtered]);
     return newSub;
+  },
+
+  async updateProjectWhatsAppStatus(
+    submissionId: string,
+    target: 'teacher' | 'fortune'
+  ): Promise<boolean> {
+    const submissions = getLocalItem<CaiProjectSubmission[]>('project_submissions', []);
+    const sub = submissions.find((s) => s.id === submissionId);
+    if (!sub) return false;
+
+    if (target === 'teacher') sub.whatsapp_sent_teacher = true;
+    if (target === 'fortune') sub.whatsapp_sent_fortune = true;
+
+    setLocalItem('project_submissions', submissions);
+    return true;
   },
 
   // ============ QUESTIONS (ASK A QUESTION) ============

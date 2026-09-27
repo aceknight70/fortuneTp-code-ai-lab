@@ -1,4 +1,5 @@
 export type Tier = 'primary' | 'jss' | 'ss';
+export type Programme = 'code_ai' | 'digital_technologies';
 
 export interface CaiSchool {
   id: string;
@@ -11,6 +12,7 @@ export interface CaiClass {
   school_id: string;
   name: string;
   tier: Tier;
+  programme?: Programme; // 'code_ai' (default) or 'digital_technologies'
   class_pin: string;
   created_at: string;
 }
@@ -22,6 +24,13 @@ export interface CaiStudent {
   created_at: string;
 }
 
+export interface QuizQuestion {
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
 export interface CaiWeekContent {
   starterCode?: string;
   starterBlocks?: PrimaryBlock[];
@@ -29,12 +38,17 @@ export interface CaiWeekContent {
   aiExamplePrompts?: string[];
   tips?: string[];
   challenge?: string;
+  dtConcept?: string;
+  dtRealWorldCase?: string;
+  dtInteractiveType?: 'cipher' | 'phishing' | 'password' | 'network' | 'binary' | 'ethics' | 'concept';
+  quiz?: QuizQuestion[];
 }
 
 export interface CaiWeek {
   id: string;
   week_number: number;
   tier: Tier;
+  programme?: Programme;
   title: string;
   learn_text: string;
   do_instructions: string;
@@ -53,10 +67,13 @@ export interface CaiProgress {
   id: string;
   student_id: string;
   week_number: number;
+  programme?: Programme;
   submission: {
-    type: 'typed_code' | 'blocks';
+    type: 'typed_code' | 'blocks' | 'dt_lab';
     code: string;
     blocks?: PrimaryBlock[];
+    dtAnswers?: Record<string, string | number>;
+    dtScore?: number;
   };
   output_captured: string;
   ai_demo_input?: string;
@@ -103,6 +120,7 @@ export type AppRoom =
   | 'trainings'
   | 'assignments'
   | 'projects'
+  | 'secrets'
   | 'about'
   | 'ask'
   | 'editor';
@@ -127,6 +145,7 @@ export interface CaiFileVersion {
 export interface CaiTraining {
   id: string;
   tier: Tier;
+  programme?: Programme;
   title: string;
   content: string;
   created_at: string;
@@ -135,6 +154,7 @@ export interface CaiTraining {
 export interface CaiAssignment {
   id: string;
   tier: Tier;
+  programme?: Programme;
   school_id?: string | null;
   title: string;
   instructions: string;
@@ -147,6 +167,7 @@ export interface CaiAssignmentSubmission {
   assignment_id: string;
   student_id: string;
   file_id?: string | null;
+  notes?: string;
   submitted_at: string;
   file?: CaiFile;
 }
@@ -154,8 +175,10 @@ export interface CaiAssignmentSubmission {
 export interface CaiProject {
   id: string;
   tier: Tier;
+  programme?: Programme;
   title: string;
   description: string;
+  deliverables?: string[];
   created_at: string;
 }
 
@@ -164,6 +187,10 @@ export interface CaiProjectSubmission {
   project_id: string;
   student_id: string;
   file_id?: string | null;
+  notes?: string;
+  external_link?: string;
+  whatsapp_sent_teacher?: boolean;
+  whatsapp_sent_fortune?: boolean;
   submitted_at: string;
   file?: CaiFile;
 }

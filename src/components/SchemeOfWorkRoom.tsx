@@ -18,6 +18,7 @@ export function SchemeOfWorkRoom({
   onSelectWeekForLab,
 }: SchemeOfWorkRoomProps) {
   const completedWeekNumbers = new Set(progress.map((p) => p.week_number));
+  const isDT = cls.programme === 'digital_technologies';
 
   return (
     <div id="scheme-of-work-room" className="space-y-6">
@@ -25,16 +26,18 @@ export function SchemeOfWorkRoom({
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#F5A623]" />
-            <span className="text-xs font-bold uppercase tracking-wider text-[#F5A623]">
-              Curriculum Roadmap
+            <span className={`w-2.5 h-2.5 rounded-full ${isDT ? 'bg-indigo-600' : 'bg-[#F5A623]'}`} />
+            <span className={`text-xs font-bold uppercase tracking-wider ${isDT ? 'text-indigo-600' : 'text-[#F5A623]'}`}>
+              {isDT ? 'Digital Technologies Curriculum' : 'Curriculum Roadmap'}
             </span>
           </div>
           <h1 className="text-xl font-black text-[#17182B] tracking-tight">
-            Scheme of Work — {cls.name} ({cls.tier.toUpperCase()} Tier)
+            Scheme of Work — {cls.name} ({isDT ? 'JSS3 Digital Technologies' : `${cls.tier.toUpperCase()} Python`})
           </h1>
           <p className="text-xs text-slate-500 mt-1 max-w-2xl">
-            A full 13-week structured term crafted by Fortune's TP. Each week balances theoretical concepts with interactive hands-on code challenges and Mini AI experiments.
+            {isDT
+              ? "A complete 13-week structured syllabus covering Digital Systems, the Web Ecology, Cyber Threats, Cryptography & the Secrets Lab, Network Topologies, Binary Systems, and Nigerian Digital Law powered by FATap-CT."
+              : "A full 13-week structured term crafted by Fortune's TP. Each week balances theoretical concepts with interactive hands-on code challenges and Mini AI experiments."}
           </p>
         </div>
 

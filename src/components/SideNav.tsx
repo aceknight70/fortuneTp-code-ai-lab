@@ -12,6 +12,7 @@ import {
   LogOut,
   X,
   Code2,
+  Lock,
 } from 'lucide-react';
 import { CaiClass, CaiStudent } from '../types';
 
@@ -19,6 +20,7 @@ export type StudentNavRoom =
   | 'home'
   | 'lab'
   | 'editor'
+  | 'secrets'
   | 'scheme'
   | 'trainings'
   | 'assignments'
@@ -45,6 +47,8 @@ export function SideNav({
   mobileOpen,
   onCloseMobile,
 }: SideNavProps) {
+  const isDT = selectedClass.programme === 'digital_technologies';
+
   const navItems: {
     id: StudentNavRoom;
     label: string;
@@ -54,13 +58,20 @@ export function SideNav({
   }[] = [
     { id: 'home', label: 'Home', icon: Home },
     {
-      id: 'editor',
-      label: 'AI System',
-      icon: Terminal,
-      badge: 'IDE',
-      highlight: true,
+      id: 'secrets',
+      label: 'Secrets Lab',
+      icon: Lock,
+      badge: 'CIPHER',
+      highlight: isDT,
     },
     { id: 'lab', label: 'Weekly Lab', icon: PlayCircle },
+    {
+      id: 'editor',
+      label: isDT ? 'Script Lab' : 'AI System',
+      icon: Terminal,
+      badge: 'IDE',
+      highlight: !isDT,
+    },
     { id: 'scheme', label: 'Scheme of Work', icon: BookOpen },
     { id: 'trainings', label: 'Trainings', icon: GraduationCap },
     { id: 'assignments', label: 'Assignments', icon: FileCheck },
@@ -179,8 +190,10 @@ export function SideNav({
               <div className="text-xs font-bold text-slate-800 truncate">
                 {selectedStudent.full_name}
               </div>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
-                {selectedClass.tier.toUpperCase()}
+              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                isDT ? 'bg-indigo-100 text-indigo-800 font-mono' : 'bg-amber-100 text-amber-800'
+              }`}>
+                {isDT ? 'Digital Tech' : selectedClass.tier.toUpperCase()}
               </span>
             </div>
             <div className="text-[11px] text-slate-500 truncate flex items-center justify-between">
