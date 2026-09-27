@@ -1,51 +1,157 @@
 import { CaiAssignment, CaiProject, CaiTraining, CaiWeek } from '../types';
 
+export interface OfficeSecret {
+  id: string;
+  app: 'Word' | 'PowerPoint';
+  title: string;
+  codename: string;
+  tagline: string;
+  difficulty: 'Essential' | 'Advanced' | 'Master' | 'Legendary';
+  description: string;
+  whyItsASecret: string;
+  keyboardShortcuts: string[];
+  beforeState: string;
+  studentAction: string;
+  afterState: string;
+  badgeReward: string;
+  interactiveType: 'section_break' | 'table_math' | 'mail_merge' | 'animation_painter' | 'morph';
+}
+
+export const MS_OFFICE_SECRETS: OfficeSecret[] = [
+  {
+    id: 'secret-01',
+    app: 'Word',
+    title: 'Section Breaks: Independent Page Layouts in a Single Document',
+    codename: 'THE ORIENTATION ISOLATOR',
+    tagline: 'Make Page 2 Landscape for a wide table without flipping Pages 1 and 3!',
+    difficulty: 'Advanced',
+    description: `A standard Page Break (Ctrl+Enter) only pushes text to the next page, but all pages remain bound to the same orientation, margins, and headers. Section Breaks ('Next Page' and 'Continuous') create isolated layout partitions in Word. With a Section Break, you can change margins, switch orientation from Portrait to Landscape, unlink headers/footers ('Link to Previous' off), and start new page numbering systems (e.g. roman numerals i, ii for front matter and arabic 1, 2, 3 for body text).`,
+    whyItsASecret: `Over 90% of students and office workers believe you have to create separate Word files for portrait pages and landscape tables. Section Breaks solve this cleanly in a single master document.`,
+    keyboardShortcuts: ['Layout > Breaks > Section Breaks > Next Page', 'Alt + P, B, N (Word Shortcut)', 'Double-click Header > Uncheck Link to Previous'],
+    beforeState: `Document is 3 pages long. All pages are in Portrait orientation with standard 1-inch margins and identical linked headers.`,
+    studentAction: `1. Place cursor at the end of Page 1 and insert a Section Break (Next Page). 2. Move cursor to Section 2 (Page 2) and uncheck 'Link to Previous' on the Header & Footer tab. 3. Change Section 2 orientation to Landscape. 4. Insert another Section Break (Next Page) at the end of Page 2 and set Section 3 back to Portrait.`,
+    afterState: `Page 1 is Portrait (Cover/Intro), Page 2 is Landscape (Wide Expenditure Table), and Page 3 is Portrait (Summary). Section 2 has its own independent header. Pass Check: Verified clean orientation isolation without whole-document distortion.`,
+    badgeReward: 'Section Break Architect 📄✨',
+    interactiveType: 'section_break',
+  },
+  {
+    id: 'secret-02',
+    app: 'Word',
+    title: 'Dynamic Table Formulas: Math Calculations Without Excel',
+    codename: 'THE TABLE CALCULATOR (=SUM(ABOVE))',
+    tagline: 'Calculate sums, averages, and counts directly inside MS Word tables with F9 updates!',
+    difficulty: 'Essential',
+    description: `You do not need to launch Microsoft Excel or hand-type calculator figures to sum rows or columns in Word tables. Word has a built-in calculation engine using formulas like =SUM(ABOVE), =SUM(LEFT), =AVERAGE(ABOVE), and =COUNT(ABOVE). Furthermore, by pressing Alt+F9, you reveal the underlying field codes { =SUM(ABOVE) \\# "₦#,##0.00" }, and whenever table values change, selecting the result and tapping F9 automatically recalculates the total.`,
+    whyItsASecret: `Most users manually compute numbers and type them into Word tables, which causes massive discrepancies when invoices or fees are revised. =SUM(ABOVE) provides automated arithmetic precision.`,
+    keyboardShortcuts: ['Table Tools Layout > Formula', '=SUM(ABOVE)', 'F9 (Update Field)', 'Alt + F9 (Toggle Field Codes)'],
+    beforeState: `A 4-row PTA invoice table with empty Grand Total and Average score cells at the bottom.`,
+    studentAction: `1. Click in the bottom Total cell. 2. Open Table Tools Layout > Formula. 3. Insert '=SUM(ABOVE)' with number format '₦#,##0.00'. 4. Modify a tuition fee row and press F9 to trigger automated recalculation.`,
+    afterState: `Grand Total cell dynamically computes all cells above it in formatted Nigerian Naira. Pressing F9 reflects the updated figures instantly. Pass Check: Formula code verified and recalculated.`,
+    badgeReward: 'Word Math Virtuoso 🧮⚡',
+    interactiveType: 'table_math',
+  },
+  {
+    id: 'secret-03',
+    app: 'Word',
+    title: 'Mail Merge Rules: Conditional If...Then...Else Personalization',
+    codename: 'THE CONDITIONAL MERGE ENGINE',
+    tagline: 'Automatically change sentences based on recipient data (Scholarships, balances, honours)!',
+    difficulty: 'Master',
+    description: `Basic Mail Merge replaces simple tokens like «First_Name». But the real secret weapon of executive secretaries and registrar offices is Mailings > Rules > 'If...Then...Else...'. This allows dynamic document branching: If a student's score is >= 75, Word inserts a scholarship commendation sentence; if score < 75, Word inserts standard registration instructions. You can also use 'Next Record If', 'Merge Record #', and 'Fill-in' prompts.`,
+    whyItsASecret: `Schools and businesses spend hours creating separate letters for different student categories. Mail Merge Rules allow one master template to produce hundreds of customized letters with variable logic.`,
+    keyboardShortcuts: ['Mailings > Rules > If...Then...Else...', 'Ctrl + F9 (Insert Blank Field Brackets)', 'Mailings > Preview Results'],
+    beforeState: `A template admission letter connected to a 4-student class database with fields: Name, EntranceScore, and School.`,
+    studentAction: `1. Select the recommendation paragraph. 2. Click Mailings > Rules > 'If...Then...Else...'. 3. Specify Condition: IF EntranceScore >= 75 THEN insert 'Awarded Principal Merit Scholarship' ELSE insert 'Standard Registration Required'. 4. Preview and toggle through all 4 student records.`,
+    afterState: `High-scoring candidates receive the scholarship paragraph, while other candidates receive standard guidelines. Pass Check: Both conditional branches dynamically verified across dataset.`,
+    badgeReward: 'Mail Merge Maestro ✉️🎯',
+    interactiveType: 'mail_merge',
+  },
+  {
+    id: 'secret-04',
+    app: 'PowerPoint',
+    title: 'The Animation Painter: Instant Multi-Effect Motion Cloning',
+    codename: 'THE MOTION BRUSH',
+    tagline: 'Copy intricate 3-layer animation sequences to multiple objects in a single double-click!',
+    difficulty: 'Advanced',
+    description: `Creating a professional presentation card often requires stacking 3 animation effects: an Entrance (Zoom), an Emphasis (Pulse), and exact timing with a 0.3s delay. Manually repeating this on 8 different cards takes dozens of tedious clicks. With the Animation Painter (on the Animations ribbon), selecting the animated source object and double-clicking the paintbrush locks the brush so you can click Card A, Card B, and Card C consecutively to clone the exact animation stack in 2 seconds!`,
+    whyItsASecret: `Almost everyone knows about the Format Painter for text styling, but few discover the Animation Painter for cloning complex motion and timing choreography.`,
+    keyboardShortcuts: ['Animations > Animation Painter', 'Double-Click to Lock Brush Mode', 'Esc to release brush', 'Alt + Shift + C (Copy Animation) / Alt + Shift + V (Paste Animation)'],
+    beforeState: `Master Hero Card has a 3-step animation sequence (Zoom Entrance, Gold Pulse Emphasis, 0.4s Duration). Target Cards A, B, and C have 0 animations.`,
+    studentAction: `1. Select Master Hero Card. 2. Double-click the 'Animation Painter' button to lock multi-paint mode. 3. Sequentially click Card A, Card B, and Card C. 4. Tap Esc to exit brush mode and launch Slide Preview.`,
+    afterState: `All 4 cards possess identical animation timing, duration, and effects, triggering in rhythmic succession. Pass Check: Multi-object animation stack verified.`,
+    badgeReward: 'Choreography Painter 🎨🏃',
+    interactiveType: 'animation_painter',
+  },
+  {
+    id: 'secret-05',
+    app: 'PowerPoint',
+    title: 'The Morph Transition: Seamless Cinematic Keynote Animations',
+    codename: 'THE MORPH ILLUSIONIST',
+    tagline: 'Create Apple/Pixar-level fluid slide transformations without drawing motion paths!',
+    difficulty: 'Legendary',
+    description: `Morph is PowerPoint's most powerful visual transition. Instead of jerky slide cuts, Morph analyzes identical objects across two consecutive slides and smoothly animates their position, size, rotation, and color. By duplicating Slide 1, moving and resizing an element on Slide 2, and applying Transitions > Morph with a 1.5s duration, PowerPoint creates a continuous cinematic camera zoom. You can even use the exclamation naming trick (naming objects '!!icon' in the Selection Pane) to morph completely different shapes into one another!`,
+    whyItsASecret: `Novice presenters clutter slides with dozens of chaotic entrance effects. Professional keynote designers use Morph to create a calm, cinematic storytelling flow that captivates audiences.`,
+    keyboardShortcuts: ['Transitions > Morph', 'Effect Options: Objects / Words / Characters', 'Alt + F10 (Selection Pane for !! naming trick)', 'Duration: 1.50s'],
+    beforeState: `Slide 1 shows a small planetary system overview. Slide 2 contains an enlarged, highlighted focal planet with detailed spec callouts, but transitions with an abrupt Cut.`,
+    studentAction: `1. Select Slide 2. 2. Navigate to Transitions and select 'Morph'. 3. Set Effect Options to 'Objects'. 4. Set duration to 1.75 seconds. 5. Play the slide show transition to preview fluid interpolation.`,
+    afterState: `The planetary element glides across the screen, smoothly enlarging while text cards gently dissolve into view. Pass Check: Continuous coordinate and scale interpolation verified.`,
+    badgeReward: 'Cinematic Morph Master 🎬🪐',
+    interactiveType: 'morph',
+  },
+];
+
 export const DT_WEEKS: CaiWeek[] = [
   {
     id: 'dt-01',
     week_number: 1,
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'Digital Systems & Technology Ecosystem',
-    learn_text: `Digital technology is the integration of electronic computing hardware, software, telecommunications, and digital networks to gather, store, process, and transmit data. 
+    title: 'Revision of JSS2 Concepts & Introduction to Digital Technologies',
+    learn_text: `Welcome to JSS3 Digital Technologies! Digital technology is the branch of scientific computing that uses electronic microchips, software algorithms, and networked systems to solve practical human problems.
 
-In Nigeria and across the globe, we are transitioning from basic computer awareness to digital fluency. Digital systems operate on binary principles (0s and 1s) and power everything from ATM bank networks (NIBSS) and cellular SIM towers to cloud servers.
-
-Key components of every digital system:
-1. Input: Sensors, keyboards, cameras, biometric scanners.
-2. Processing: CPU (Central Processing Unit) & GPU computing chips.
-3. Storage: Primary memory (RAM) and non-volatile storage (SSD, Flash, Cloud).
-4. Output: Displays, audio speakers, automated actuators.
-5. Communication: Network interfaces (Wi-Fi, 4G/5G, Ethernet).`,
-    do_instructions: `Examine the digital systems diagram, review the 5 core stages of a modern electronic transaction, and complete the digital systems checkpoint quiz below!`,
+In this introductory module, we review core digital competencies:
+1. Review of JSS2 Computing: Hardware fundamentals, operating systems, file directories, and basic data processing.
+2. Introduction to Digital Entrepreneurship: How young creators in Nigeria leverage digital skills to build websites, launch educational platforms, design media content, and automate office tasks.
+3. Management of E-Waste: As devices become obsolete, electronic waste (discarded computers, mobile phones, printed circuit boards) poses severe toxic hazards (lead, mercury, cadmium). Students learn safe handling, device refurbishment, and circular recycling protocols.`,
+    do_instructions: `Review the e-waste lifecycle audit, inspect the digital entrepreneurship opportunity matrix, and complete the Week 1 checkpoint quiz.`,
     content_json: {
-      dtConcept: 'The 5 essential stages of digital processing: Input -> Processing -> Storage -> Communication -> Output.',
-      dtRealWorldCase: 'When you tap an ATM card in Lagos, the chip reader (Input) transmits encrypted packets via fiber optic routers (Communication) to the bank core database (Storage/Processing) to approve your cash disbursement (Output).',
+      dtConcept: 'Digital technologies combine hardware, software, and ethical digital stewardship including e-waste reduction.',
+      dtRealWorldCase: 'In the computer markets of Computer Village (Ikeja, Lagos), technicians refurbish discarded corporate desktop computers, replacing damaged capacitors and hard drives with fast SSDs to supply affordable learning machines to public schools while preventing toxic lead contamination.',
       dtInteractiveType: 'concept',
-      challenge: 'Identify which hardware component performs data transformation versus communication in a smart device.',
+      challenge: 'Identify which computer disposal methods are environmentally sound versus illegal dumping.',
       quiz: [
         {
-          question: 'What is the primary function of the CPU in a digital system?',
+          question: 'What is the primary danger of disposing of old computer monitors and circuit boards in open municipal dumps?',
           options: [
-            'To display colors on the screen',
-            'To execute arithmetic and logical processing instructions',
-            'To store files permanently when power is turned off',
-            'To connect cables to the power socket'
+            'They occupy too much physical space in dump trucks',
+            'Heavy metals like lead, mercury, and cadmium leach into groundwater and soil',
+            'They cause radio waves to interfere with television broadcasts',
+            'They immediately catch fire in normal sunlight'
           ],
           correctIndex: 1,
-          explanation: 'The CPU (Central Processing Unit) is the "brain" responsible for calculating instructions and executing program logic.'
+          explanation: 'E-waste contains hazardous heavy metals like lead and mercury that poison water tables and agricultural land if not recycled in specialized facilities.'
         },
         {
-          question: 'Which of the following is considered volatile primary memory?',
-          options: ['Hard Disk Drive (HDD)', 'RAM (Random Access Memory)', 'USB Flash Drive', 'MicroSD Card'],
+          question: 'Which of the following is an example of digital entrepreneurship for a secondary school student in Nigeria?',
+          options: [
+            'Selling physical exercise books outside the school gate',
+            'Designing event flyers and social media banners for local businesses using desktop publishing software',
+            'Cleaning chalkboard erasers after lessons',
+            'Writing handwritten letters for neighborhood post'
+          ],
           correctIndex: 1,
-          explanation: 'RAM is volatile memory; it holds data currently in use and loses its contents when power is switched off.'
+          explanation: 'Digital entrepreneurship involves providing services or building products using digital computing skills like graphic design, document layout, or web development.'
         },
         {
-          question: 'In the Nigerian digital economy, what is an example of an input device in banking?',
-          options: ['Receipt printer', 'Biometric fingerprint scanner', 'Cash dispenser motor', 'ATM speaker'],
+          question: 'What is the most environmentally responsible first step when a school computer becomes sluggish?',
+          options: [
+            'Throw it into the school incinerator immediately',
+            'Diagnose faults, clean internal dust, upgrade RAM/SSD, and refurbish the unit for younger pupils',
+            'Bury it behind the science laboratory',
+            'Leave it in the rain to wash the microchips'
+          ],
           correctIndex: 1,
-          explanation: 'Biometric fingerprint scanners capture physical data and convert it into digital input for verification.'
+          explanation: 'Refurbishing and upgrading extend device lifespan, reduce carbon footprint, and prevent premature e-waste generation.'
         }
       ]
     },
@@ -56,53 +162,58 @@ Key components of every digital system:
     week_number: 2,
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'The Internet, Protocols & Web Ecology',
-    learn_text: `The Internet is a global network of interconnected computer networks communicating through standardized protocol suites (TCP/IP).
+    title: 'Advanced Word Processing I: Page Layout, Tables & Mail Merge',
+    learn_text: `Advanced Microsoft Word features allow professionals to build structured, publication-quality documents with dynamic data. 
 
-How the Web Works:
-1. IP Address: Every device has a numerical Internet Protocol address (e.g. 102.89.23.44) indicating its location on the global grid.
-2. DNS (Domain Name System): The "phonebook" of the Internet. Instead of memorizing numerical IP addresses, DNS translates human names like "fortuneacademy.edu.ng" into machine-readable IP addresses.
-3. HTTP & HTTPS: Hypertext Transfer Protocol. The "S" stands for Secure — meaning traffic between your phone and the server is encrypted using TLS/SSL so eavesdroppers cannot see your passwords.
-4. Packets & Routers: Files and messages are split into small chunks called packets, routed across various pathways, and reassembled at their destination.`,
-    do_instructions: `Trace how a web request travels from a student's phone through DNS resolution to a cloud server, and answer the protocol evaluation questions.`,
+Part A — The Three Subtopic Real-World Examples (verbatim, unchanged from the original Lesson Notes):
+
+1. Page Layout
+Real-World Example: Designing an official multi-page school terminal magazine or government report. The cover and introduction pages require standard A4 Portrait layout with 1-inch margins, while Page 3 features a wide financial expenditure spreadsheet table requiring Landscape orientation, and Page 4 returns to Portrait with a 2-column newsletter article format. Without Section Breaks, changing Page 3 to Landscape would flip the entire 20-page document! Section Breaks ('Next Page' and 'Continuous') isolate layout rules so margins, orientation, headers, and column counts change independently per section.
+
+2. Tables
+Real-World Example: Preparing an official student term bill or PTA financial invoice inside Microsoft Word. The table consists of columns for Fee Description, Term Quantity, Unit Rate, and Total Amount. Instead of calculating sums by hand or copying back and forth from Excel, Word tables allow dynamic formula fields. Placing =SUM(ABOVE) in the bottom cell dynamically totals all currency values above it. When an amount changes (e.g. tuition adjustment), selecting the field and pressing F9 immediately recalculates the total, eliminating arithmetic errors in official correspondence.
+
+3. Mail Merge
+Real-World Example: A secondary school principal issuing individualized admission offer and scholarship award letters to 250 admitted candidates. Each student has a distinct name, guardian address, admission number, entrance score, and scholarship eligibility. Instead of typing 250 separate documents, the secretary maintains a single recipient data spreadsheet and links it to a master Word letter template using Mail Merge fields («First_Name», «Exam_Score»). By applying Mail Merge Rules (IF...THEN...ELSE), students with scores above 80 automatically receive a scholarship commendation paragraph, while others receive standard enrollment guidelines, generating 250 unique personalized PDFs in seconds.`,
+    do_instructions: `Execute the Week 2 Precision Test Specifications below: Test 1 (Page Layout Section Break Isolation), Test 2 (Table =SUM(ABOVE) Calculation & F9 Recalculation), and Test 3 (Mail Merge IF...THEN...ELSE Conditional Personalization).`,
     content_json: {
-      dtConcept: 'The Internet relies on TCP/IP packet switching, DNS name resolution, and HTTPS transport encryption.',
-      dtRealWorldCase: 'When checking your school terminal report online, your browser queries a DNS server in milliseconds to find the school host IP, then initiates an HTTPS encrypted handshake to prevent anyone on public Wi-Fi from reading your grades.',
-      dtInteractiveType: 'network',
-      challenge: 'Simulate resolving a domain name to an IP address and inspecting why HTTPS with SSL certificates is critical.',
+      dtConcept: 'Advanced Word skills (Section Breaks, Table Math, Mail Merge Rules) eliminate manual repetition and enable dynamic document engineering.',
+      dtRealWorldCase: 'Fortune Academy registrar office automated 600 terminal parent reports using a single Word template with =SUM(ABOVE) fee auditing and conditional scholarship rules, saving 35 hours of manual re-typing.',
+      dtInteractiveType: 'concept',
+      challenge: 'Demonstrate Before State -> Student Action -> After State for Section Breaks, =SUM(ABOVE), and Mail Merge Rules.',
       quiz: [
         {
-          question: 'What does DNS stand for and what is its role?',
+          question: 'How do you switch Page 2 of a Word document to Landscape without changing Page 1 and Page 3?',
           options: [
-            'Digital Network System: charges mobile data',
-            'Domain Name System: translates domain names into numerical IP addresses',
-            'Data Navigation Software: draws webpage graphics',
-            'Direct Net Security: blocks all viruses'
+            'Use standard Page Break (Ctrl+Enter) twice',
+            'Insert Section Break (Next Page) before and after Page 2, unlink headers, and set Section 2 orientation to Landscape',
+            'Zoom out to 50% and rotate the monitor physically',
+            'Print the entire document as PDF and rotate the PDF page in Acrobat'
           ],
           correctIndex: 1,
-          explanation: 'DNS resolves human-friendly names (like google.com) into numerical IP addresses computers use to route packets.'
+          explanation: 'Section Breaks create separate formatting partitions. Page orientation is a section-level setting, so isolating Page 2 inside its own section allows it to be Landscape independently.'
         },
         {
-          question: 'What key security advantage does HTTPS provide over standard HTTP?',
+          question: 'What is the function of pressing F9 in a Microsoft Word table containing formulas?',
           options: [
-            'It makes the internet connection 10 times faster',
-            'It encrypts all communication between browser and server',
-            'It deletes all cookies immediately',
-            'It allows browsing without any data bundle'
+            'It deletes the selected row permanently',
+            'It updates and recalculates the active formula field code (e.g. =SUM(ABOVE))',
+            'It changes the font color to blue',
+            'It saves the document as an Excel spreadsheet'
           ],
           correctIndex: 1,
-          explanation: 'HTTPS encrypts data in transit using TLS/SSL, preventing attackers from eavesdropping or tampering with sensitive credentials.'
+          explanation: 'F9 is the Microsoft Word universal field update key. When table values change, F9 recalculates =SUM(ABOVE) without having to re-enter formulas.'
         },
         {
-          question: 'How is data transferred across the Internet?',
+          question: 'In Microsoft Word Mail Merge, what does the IF...THEN...ELSE rule accomplish?',
           options: [
-            'As one unbroken giant file',
-            'Broken down into smaller numbered packets that routers forward',
-            'Through television antenna radio waves exclusively',
-            'By storing it on physical hard disks transported by courier'
+            'It crashes the computer if a student score is zero',
+            'It inserts variable text or fields into a merged letter depending on whether recipient data meets a specified condition',
+            'It sorts the recipient contact list in reverse alphabetical order',
+            'It forces the printer to print in black-and-white only'
           ],
           correctIndex: 1,
-          explanation: 'Packet switching breaks data into manageable packets, each routed independently and reassembled at the destination.'
+          explanation: 'The IF...THEN...ELSE rule evaluates recipient spreadsheet criteria (such as entrance scores or fee clearance) and automatically inserts custom clauses for each individual recipient.'
         }
       ]
     },
@@ -113,49 +224,54 @@ How the Web Works:
     week_number: 3,
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'Digital Communication, Netiquette & Cloud Collaboration',
-    learn_text: `Digital communication empowers millions of people to learn, work, and collaborate across geographic boundaries. However, digital spaces require Netiquette (network etiquette) and responsible digital citizenship.
+    title: 'Advanced MS PowerPoint: Custom Animations, Animation Painter & Morph',
+    learn_text: `Presentation software is a vital tool for communicating ideas persuasively. Advanced PowerPoint goes far beyond basic slide bullet points:
 
-Core Principles of Netiquette:
-1. Respect and Empathy: Remember that behind every screen is a real human being. Avoid cyberbullying, insults, or harassment.
-2. Tone & Typing: Typing in ALL CAPITAL LETTERS is perceived as shouting. Use clear punctuation and polite greetings.
-3. Verification: Never forward unverified rumors, fake news, or forwarded chain messages without fact-checking sources.
-4. Privacy Boundaries: Never share someone else's personal photo, phone number, or private conversation without explicit permission.
-5. Cloud Collaboration: Tools like Google Drive, Docs, and Microsoft 365 allow synchronous co-editing, version history audits, and access control (Viewer, Commenter, Editor).`,
-    do_instructions: `Review the collaboration scenario, identify proper netiquette responses, and test your knowledge of cloud permission levels.`,
+1. Animation Layers & Timing:
+- Entrance effects (Fade In, Zoom, Float In) introduce content smoothly.
+- Emphasis effects (Pulse, Spin, Color Change) draw attention to critical statistics.
+- Motion Paths direct objects across custom visual trajectories.
+- Timing: Setting 'Start With Previous' or 'Start After Previous' with specified delays creates cinematic choreography without clicking.
+
+2. The Animation Painter Secret:
+When you have created a 3-layer animation stack on one shape, manually repeating those 8 steps on 10 other shapes is frustrating. Double-clicking the 'Animation Painter' button locks copy mode, letting you brush the identical motion sequence across multiple elements in seconds.
+
+3. The Morph Slide Transition:
+Morph analyzes shapes across consecutive slides and creates seamless, Apple-keynote style fluid motion. By duplicating a slide and shifting an object's position, size, or color, Morph produces high-end 3D-like zoom and panning effects without complex path editing.`,
+    do_instructions: `Configure a 2-slide presentation with Morph transition, clone animations using Animation Painter, and answer the PowerPoint mastery questions.`,
     content_json: {
-      dtConcept: 'Positive digital citizenship balances efficient cloud collaboration with respect, fact-checking, and strict privacy boundaries.',
-      dtRealWorldCase: 'In a shared student class document, a student accidentally deleted a classmate’s paragraph. Using Cloud Version History, the teacher restored the previous revision in one click without losing any new additions.',
+      dtConcept: 'The Animation Painter and Morph Transition elevate presentations into cinematic storytelling engines.',
+      dtRealWorldCase: 'During the Lagos State STEM Fair, the winning JSS3 team used Morph transitions to simulate microscopic cell division across 4 slides, captivating the panel of engineering judges.',
       dtInteractiveType: 'concept',
-      challenge: 'Differentiate between Viewer, Commenter, and Editor access roles when sharing school study documents.',
+      challenge: 'Set up an animation sequence and duplicate it across 3 cards using the Animation Painter.',
       quiz: [
         {
-          question: 'Why is typing messages in ALL CAPS considered poor netiquette?',
+          question: 'What is the major advantage of double-clicking the Animation Painter instead of single-clicking it?',
           options: [
-            'It consumes double the mobile battery',
-            'It is interpreted as shouting or aggressive tone',
-            'It causes printers to run out of ink faster',
-            'It breaks the computer keyboard'
+            'It makes the animation 2x faster',
+            'It locks the painter so you can paint the animation onto multiple objects consecutively until pressing Esc',
+            'It automatically deletes the original object',
+            'It converts the animation into an MP4 video file'
           ],
           correctIndex: 1,
-          explanation: 'In digital communication conventions, text in full uppercase signifies shouting and aggressive speech.'
+          explanation: 'Single-clicking the Animation Painter applies the effect to one target object and turns off. Double-clicking keeps the tool active for multi-object cloning.'
         },
         {
-          question: 'If you want classmates to read your project notes without accidentally modifying them, which permission should you grant?',
-          options: ['Editor', 'Viewer', 'Co-Owner', 'Administrator'],
-          correctIndex: 1,
-          explanation: 'Viewer permission allows others to read the content without having rights to delete or alter text.'
-        },
-        {
-          question: 'What should a responsible digital citizen do when receiving an alarming viral forward on social media?',
+          question: 'For the PowerPoint Morph transition to animate an object smoothly between Slide 1 and Slide 2, what must be true?',
           options: [
-            'Immediately forward it to all class WhatsApp groups',
-            'Fact-check the source with credible news outlets before sharing',
-            'Demand money from the sender',
-            'Post it on their public status to get more followers'
+            'The slides must both be blank with no text',
+            'At least one common object or shape must exist on both slides so PowerPoint can interpolate its position, size, or color',
+            'The computer must have an active internet connection to download Pixar templates',
+            'The user must draw a manual bezier curve motion path on both slides'
           ],
           correctIndex: 1,
-          explanation: 'Fact-checking stops the dangerous spread of misinformation and rumors.'
+          explanation: 'Morph automatically tracks objects that persist across consecutive slides and smoothly calculates intermediate frames.'
+        },
+        {
+          question: 'Which animation trigger setting allows visual cards to appear one after another automatically without requiring mouse clicks?',
+          options: ['On Click', 'Start After Previous', 'Pause When Idle', 'Loop Forever'],
+          correctIndex: 1,
+          explanation: "'Start After Previous' triggers the animation as soon as the preceding animation completes, creating an automated sequence."
         }
       ]
     },
@@ -166,57 +282,45 @@ Core Principles of Netiquette:
     week_number: 4,
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'Cyber Threats & Malware Anatomy',
-    learn_text: `In the digital landscape, understanding adversary tactics is essential for defense. Cyber threats target system availability, data integrity, and personal confidentiality.
+    title: 'Advanced Word Processing II: Document Structuring & Citations',
+    learn_text: `Creating long-form academic documents, dissertations, and project reports requires standardized structural controls:
 
-Common Categories of Malware (Malicious Software):
-1. Virus: Attaches itself to legitimate software programs and replicates when the host program is executed.
-2. Worm: Self-replicating malware that spreads across local networks without requiring user interaction, consuming network bandwidth.
-3. Trojan Horse: Disguises itself as a legitimate file (e.g. a free game or homework helper) to trick the user into installing it.
-4. Ransomware: Encrypts the victim's files, holding their private data hostage until an extortion fee is paid.
-5. Spyware & Keyloggers: Secretly monitors keystrokes and webcam/microphone activity to steal bank login credentials.
+1. Automatic Table of Contents (TOC):
+Instead of typing chapter titles and dotted lines manually, students format headings using Word Styles (Heading 1, Heading 2, Heading 3). Going to References > Table of Contents automatically compiles a clickable TOC with exact page numbers. If text moves, right-click > 'Update Field' syncs page numbers instantly.
 
-Social Engineering & Phishing:
-Adversaries frequently use psychological manipulation instead of technical hacking. Phishing involves sending fraudulent emails or SMS with urgent warnings ("Your account will be blocked in 10 minutes!") to steal credentials.`,
-    do_instructions: `Inspect three simulated emails to identify red flags of phishing, and complete the cyber threat defense challenge.`,
+2. Unlinking Headers & Footers for Roman/Arabic Pagination:
+Formal reports require roman numerals (i, ii, iii) for the Title Page, Acknowledgements, and Table of Contents, and Arabic numbers (1, 2, 3...) starting on Chapter 1. By inserting a Section Break before Chapter 1, deselecting 'Link to Previous' on the Header/Footer tab, and configuring Page Number Format > 'Start at 1', two completely different numbering systems coexist in one file.
+
+3. Footnotes, Endnotes & Bibliographic References:
+Using References > Insert Footnote adds superscript numbers and citation text at the bottom of the page, maintaining academic integrity.`,
+    do_instructions: `Structure a 5-page mock academic report with styled Headings, an automated Table of Contents, and unlinked roman/arabic page numbering.`,
     content_json: {
-      dtConcept: 'Malware categories (Viruses, Worms, Trojans, Ransomware) and social engineering techniques (Phishing).',
-      dtRealWorldCase: 'A student received an SMS claiming: "CBN has suspended your school account. Click http://cbn-verify-login.xyz to update immediately." The suspicious domain and manufactured urgency are classic signs of a phishing attack.',
-      dtInteractiveType: 'phishing',
-      challenge: 'Examine sender addresses, spelling anomalies, and deceptive links to spot malicious traps.',
+      dtConcept: 'Word Styles and unlinked Section Headers automate long-document indexing and professional academic formatting.',
+      dtRealWorldCase: 'A student preparing a 25-page junior secondary science project report updated their TOC in 2 seconds before printing by right-clicking Update Table, avoiding 3 hours of manual page auditing.',
+      dtInteractiveType: 'concept',
+      challenge: 'Configure a document where front matter has roman page numbers and Chapter 1 begins at page 1 in Arabic numerals.',
       quiz: [
         {
-          question: 'What distinguishes a Trojan Horse from a computer virus?',
+          question: 'What prerequisite is required before Word can generate an automatic Table of Contents?',
           options: [
-            'A Trojan is always harmless',
-            'A Trojan masquerades as useful, harmless software to trick the user',
-            'A Trojan only targets Macintosh computers',
-            'A Trojan runs only when the internet is disconnected'
+            'All text must be bolded and centered',
+            'Headings must be formatted using built-in heading styles (Heading 1, Heading 2, etc.)',
+            'The document must be saved with an .xls file extension',
+            'The document must have at least 100 pages'
           ],
           correctIndex: 1,
-          explanation: 'Trojan horses pretend to be desirable software (like a media player or game mod) while concealing malicious payloads.'
+          explanation: 'Word scans the document for Paragraph Styles tagged as Heading 1, 2, or 3 to construct the hierarchical Table of Contents.'
         },
         {
-          question: 'What is the primary objective of Ransomware?',
+          question: 'Why must you uncheck "Link to Previous" when setting up different headers in Section 2?',
           options: [
-            'To clean up unnecessary duplicate files',
-            'To encrypt the victim’s files and demand money for the decryption key',
-            'To speed up computer startup time',
-            'To send free emails to your friends'
+            'To prevent Section 2 from inheriting the header text and page numbering scheme of Section 1',
+            'To delete all previous paragraphs in the document',
+            'To turn off the computer spelling checker',
+            'To lock the file against external editing'
           ],
-          correctIndex: 1,
-          explanation: 'Ransomware locks down files with strong encryption and extorts the victim for ransom.'
-        },
-        {
-          question: 'Which of the following is a classic indicator of a Phishing email?',
-          options: [
-            'A personalized greeting with accurate invoice details from your confirmed teacher',
-            'Urgent emotional threats, mismatched sender domain names, and suspicious links',
-            'An email coming from the official school domain @fortuneacademy.edu.ng',
-            'A calendar invitation for next term’s sports day'
-          ],
-          correctIndex: 1,
-          explanation: 'Phishing emails often manufacture artificial urgency and use lookalike domain names to panic victims into submitting passwords.'
+          correctIndex: 0,
+          explanation: "'Link to Previous' binds the current section header to the previous section. Unlinking grants total design independence."
         }
       ]
     },
@@ -227,59 +331,49 @@ Adversaries frequently use psychological manipulation instead of technical hacki
     week_number: 5,
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'Digital Privacy, Passwords & Identity Protection',
-    learn_text: `Every time you search, post, browse, or click online, you leave a trail called your Digital Footprint.
+    title: 'Advanced Spreadsheets: Logical IF Functions & Conditional Formatting',
+    learn_text: `Microsoft Excel and Google Sheets are the world's most widely used tools for quantitative analysis and financial modeling:
 
-Passive vs Active Footprint:
-- Passive Footprint: Data gathered without your direct action (IP address, device type, tracking cookies, location history).
-- Active Footprint: Content you deliberately post (photos, comments, status updates, submitted forms).
+1. Formula Architecture & Cell Referencing:
+- Relative references (A1, B2) adjust automatically when formulas are dragged.
+- Absolute references ($A$1, $B$2) stay fixed on a constant value like tax rate or bonus multiplier.
 
-Building an Impenetrable Password Fortress:
-1. Entropy & Length: A 14-character passphrase made of unrelated words (e.g. "Elephant#Plate@River99") takes supercomputers trillions of years to crack, whereas "password123" takes less than a second.
-2. Avoid Personal Details: Never use your birthday, pet name, or phone number.
-3. Multi-Factor Authentication (MFA / 2FA): Requires two pieces of evidence to log in:
-   - Something you know (your password)
-   - Something you have (an authenticator app token or SMS OTP)
-   - Something you are (biometric fingerprint or facial recognition).`,
-    do_instructions: `Test password strength in the entropy calculator, identify high-risk footprint exposures, and learn how MFA prevents unauthorized takeovers.`,
+2. The Logical =IF() Function:
+Syntax: =IF(logical_test, value_if_true, value_if_false)
+Example: =IF(C2 >= 50, "PASS", "FAIL")
+Nested IFs allow multi-tier grading:
+=IF(C2 >= 75, "Distinction", IF(C2 >= 50, "Credit", "Remedial"))
+
+3. Conditional Formatting:
+Conditional formatting automatically highlights cells with colors, icons, or data bars based on rules (e.g. green for scores >= 70, red for scores < 40), allowing instant visual outlier detection in large datasets.`,
+    do_instructions: `Construct a 10-student term score spreadsheet with weighted totals, automated IF grading formulas, and conditional color highlighting.`,
     content_json: {
-      dtConcept: 'Digital footprints, password entropy, and multi-factor authentication (MFA).',
-      dtRealWorldCase: 'Even if an attacker guesses your password through a leak, with 2FA enabled they are blocked because they do not have your physical phone generating the 6-digit one-time code.',
-      dtInteractiveType: 'password',
-      challenge: 'Construct a 14+ character high-entropy passphrase that achieves a 100% fortress rating in the Secrets Lab.',
+      dtConcept: 'Logical IF formulas and conditional formatting transform raw numeric grids into automated business intelligence dashboards.',
+      dtRealWorldCase: 'The examination committee of an educational district uses Excel conditional formatting to instantly flag students with sub-40 scores for intervention classes.',
+      dtInteractiveType: 'concept',
+      challenge: 'Write a nested IF formula that assigns letter grades (A, B, C, F) based on terminal exam averages.',
       quiz: [
         {
-          question: 'Which of the following is considered an active digital footprint?',
+          question: 'What does the formula =IF(D4>=70, "A", "Needs Review") do?',
           options: [
-            'The web server logging your device IP address in background logs',
-            'A public comment and photograph you posted on an Instagram forum',
-            'A cookie storing your screen resolution',
-            'The cellular antenna pinging your nearest tower'
+            'It adds 70 to the number in cell D4',
+            'It evaluates cell D4: if it is 70 or higher, it displays "A"; otherwise, it displays "Needs Review"',
+            'It rounds cell D4 to the nearest integer',
+            'It sends an email notification to student D4'
           ],
           correctIndex: 1,
-          explanation: 'Active footprints consist of data you intentionally publish or upload online.'
+          explanation: 'The IF function evaluates the condition (D4>=70) and returns the corresponding branch output.'
         },
         {
-          question: 'Why is a 4-word passphrase like "Sunset#Bridge@Orange42" superior to "P@ss1"?',
+          question: 'What does placing dollar signs like $C$2 in an Excel formula signify?',
           options: [
-            'It is shorter and easier for computers to guess',
-            'Higher entropy and character length make brute-force attacks mathematically infeasible',
-            'It contains no letters',
-            'It can only be used once per year'
+            'It converts the number to American Dollars ($)',
+            'It makes the cell reference absolute so it does not change when copied across rows or columns',
+            'It hides the formula from other users',
+            'It calculates bank interest'
           ],
           correctIndex: 1,
-          explanation: 'Length is the single most important factor in password entropy; combining random words yields immense complexity.'
-        },
-        {
-          question: 'What are the three common authentication factors in MFA?',
-          options: [
-            'Something you know, something you have, and something you are',
-            'Your name, your school, and your uniform',
-            'Credit card, debit card, and cash',
-            'Email, username, and nickname'
-          ],
-          correctIndex: 0,
-          explanation: 'MFA relies on combinations of knowledge (password), possession (phone/key), and inherence (biometrics).'
+          explanation: 'Dollar signs lock the column and row coordinates (absolute reference) so dragging formulas does not alter the referenced cell.'
         }
       ]
     },
@@ -290,53 +384,42 @@ Building an Impenetrable Password Fortress:
     week_number: 6,
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'Cryptography: The Science of Secrets',
-    learn_text: `Cryptography is the practice and study of techniques for secure communication in the presence of adversaries. It transforms readable Plaintext into scrambled Ciphertext.
+    title: 'Database Management & Simple Queries (MS Access / Data Tables)',
+    learn_text: `While spreadsheets handle basic calculations, large systems rely on Relational Database Management Systems (RDBMS) like Microsoft Access, MySQL, and PostgreSQL:
 
-The Golden Vocabulary of Cryptography:
-- Plaintext: The original, readable message (e.g. "MEET AT THE LAB").
-- Cipher: The mathematical algorithm used to encrypt and decrypt.
-- Key: The secret parameter used by the cipher to control the transformation.
-- Ciphertext: The scrambled, unreadable result (e.g. "PHHW DW WKH ODE").
-- Decryption: Reversing the process using the key to restore the plaintext.
+1. Relational Database Concepts:
+- Table: A structured collection of related data.
+- Field (Column): A specific category of information (e.g. Student_ID, First_Name, Date_of_Birth).
+- Record (Row): A complete set of fields belonging to one entity (e.g. all information about Student #104).
+- Primary Key: A unique identifier that ensures no two records are duplicated (e.g. National Identity Number NIN, Admission PIN).
 
-The Caesar Cipher (Shift Cipher):
-Invented by Julius Caesar to protect military orders. Each letter in the plaintext is shifted by a fixed number of positions down the alphabet:
-- With Shift Key = 3: A -> D, B -> E, C -> F ... X -> A, Y -> B, Z -> C.
-- ROT13 (Rotate by 13): A special case where shifting by 13 twice returns you back to the start (because 13 + 13 = 26).
-
-Symmetric vs Asymmetric Encryption:
-- Symmetric: The same secret key is used to both encrypt and decrypt (fast, used for bulk files).
-- Asymmetric: Uses a mathematical key pair — a Public Key (anyone can encrypt) and a Private Key (only the owner can decrypt).`,
-    do_instructions: `Enter the Secrets Lab room! Spin the Caesar Cipher wheel, adjust the shift key, and decode the classified intercept.`,
+2. Designing Queries:
+A query extracts specific records matching criteria from thousands of rows:
+- SELECT Student_Name, Exam_Score FROM Students WHERE Exam_Score > 75 ORDER BY Exam_Score DESC;
+Students learn how to use Query By Example (QBE) grids in MS Access to filter, sort, and calculate aggregate summaries.`,
+    do_instructions: `Design a school library database schema with Books and Borrowers tables, assign primary keys, and execute a filter query for overdue books.`,
     content_json: {
-      dtConcept: 'Plaintext, ciphertext, encryption keys, Caesar shift substitution, and asymmetric key pairs.',
-      dtRealWorldCase: 'WhatsApp uses end-to-end encryption based on asymmetric Signal protocol keys. Only you and your friend hold the private keys; not even the telecom network or server can read your messages in transit.',
-      dtInteractiveType: 'cipher',
-      challenge: 'Decrypt the message "WKH VHFUHW FRGH LV IDWDS" using Caesar Shift 3 in the Secrets Lab.',
+      dtConcept: 'Databases maintain data integrity through unique Primary Keys and enable instantaneous search queries across massive collections.',
+      dtRealWorldCase: 'The Joint Admissions and Matriculation Board (JAMB) uses enterprise relational databases to register over 1.8 million candidates and query examination venues in milliseconds.',
+      dtInteractiveType: 'concept',
+      challenge: 'Differentiate between a Field, a Record, and a Primary Key in an institutional database.',
       quiz: [
         {
-          question: 'If you encrypt the letter "C" using a Caesar Cipher with a shift key of 3, what is the ciphertext letter?',
-          options: ['D', 'E', 'F', 'G'],
-          correctIndex: 2,
-          explanation: 'C is the 3rd letter. Shifting forward by 3: C -> D(1), E(2), F(3). The encrypted letter is F.'
-        },
-        {
-          question: 'What is ROT13?',
+          question: 'Why is a Primary Key essential in a database table?',
           options: [
-            'A robot with 13 wheels',
-            'A Caesar cipher with a shift of 13, which is self-reversing after two applications',
-            'A computer virus created in 2013',
-            'A 13-digit bank verification code'
+            'It makes the table look colorful on screen',
+            'It uniquely identifies each individual record and prevents duplicate or conflicting entries',
+            'It encrypts the hard drive so hackers cannot boot the computer',
+            'It allows the database to open without entering a password'
           ],
           correctIndex: 1,
-          explanation: 'Since the Latin alphabet has 26 letters, rotating by 13 twice returns the original text.'
+          explanation: 'A Primary Key must contain unique, non-null values for every record, guaranteeing that individual entities (like students or invoices) can never be confused.'
         },
         {
-          question: 'In asymmetric public-key cryptography, which key can be safely shared with anyone?',
-          options: ['The Private Key', 'The Master Root Key', 'The Public Key', 'The ATM PIN'],
-          correctIndex: 2,
-          explanation: 'The Public Key can be distributed openly to anyone who wants to send you an encrypted message.'
+          question: 'In database terminology, what corresponds to a single horizontal row containing all data for one student?',
+          options: ['A Field', 'A Record (or Tuple)', 'A Data Type', 'A Form'],
+          correctIndex: 1,
+          explanation: 'A Record represents a single complete data entry containing all relevant attributes (fields) for that specific entity.'
         }
       ]
     },
@@ -347,58 +430,45 @@ Symmetric vs Asymmetric Encryption:
     week_number: 7,
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'Mid-Term Review & Capstone Project Phase 1',
-    learn_text: `Congratulations on reaching Week 7! This week marks the synthesis milestone for JSS3 Digital Technologies.
+    title: 'Graphic Design & Digital Media Content (Canva / DTP Fundamentals)',
+    learn_text: `Digital Media encompasses graphics, audio, video, and animation produced and distributed electronically. Students explore visual communication principles using Desktop Publishing (DTP) and Canva:
 
-Over the past 6 weeks, you have mastered:
-1. The hardware/software input-processing-output ecosystem.
-2. How packets, routers, DNS, and HTTPS power the Internet.
-3. Responsible digital communication and cloud collaboration netiquette.
-4. Identifying malware and spotting social engineering/phishing.
-5. Password entropy, MFA, and digital privacy defense.
-6. The mathematical principles of ciphers and cryptography.
+1. Principles of Graphic Design:
+- Visual Hierarchy: Arranging titles, subtitles, and body text in size order so the human eye reads the most critical information first.
+- Contrast & Readability: Dark text on light backgrounds (or white text on deep navy) ensures readability from a distance.
+- Balance & White Space: Giving elements breathing room prevents cluttered, amateur designs.
+- Typography: Pairing heading fonts (bold sans-serif) with readable body fonts.
 
-Capstone Project Launch:
-In the Projects Room, your multi-week term project is now active. You will design, build, and submit your project artifact, and notify your classroom teacher and Fortune with one tap via WhatsApp!`,
-    do_instructions: `Review your progress across all rooms, complete your mid-term checkpoint evaluation, and initiate your Capstone Project submission draft.`,
+2. Creating Educational Posters & Event Flyers:
+Students practice assembling high-impact flyers for school exhibitions, sports meets, and STEM fairs, applying grid layouts, high-resolution vector icons, and balanced composition.`,
+    do_instructions: `Apply visual hierarchy rules to draft a high-contrast promotional flyer for the School Annual Science & Digital Tech Exhibition.`,
     content_json: {
-      dtConcept: 'Comprehensive mid-term evaluation of digital literacy, cybersecurity hygiene, and cryptography concepts.',
-      dtRealWorldCase: 'Major technology companies conduct quarterly security audits where teams review their system defenses, revoke stale permissions, and patch vulnerabilities before launching new software.',
+      dtConcept: 'Visual hierarchy, typography discipline, and contrast govern effective graphic design and digital media creation.',
+      dtRealWorldCase: 'A student-designed digital flyer for a school robotics fundraiser achieved a 400% higher attendance rate because the headline, venue, and date were organized with strong visual contrast.',
       dtInteractiveType: 'concept',
-      challenge: 'Inspect your completed weeks in the Scheme of Work and prepare your project notes.',
+      challenge: 'Audit a cluttered design layout and identify 3 visual hierarchy corrections to improve readability.',
       quiz: [
         {
-          question: 'Which sequence accurately represents the journey of a secure web transaction?',
+          question: 'What is "visual hierarchy" in graphic design?',
           options: [
-            'User input -> DNS resolution -> HTTPS encrypted packet transfer -> Server processing -> Display output',
-            'Display output -> User input -> DNS resolution -> Delete files',
-            'Server processing -> Unencrypted email -> Password guessing -> Print receipt',
-            'None of the above'
-          ],
-          correctIndex: 0,
-          explanation: 'Digital web transactions start with user input, resolve the server address via DNS, transfer packets securely via HTTPS, and render output.'
-        },
-        {
-          question: 'Why is practicing cyber hygiene ongoing rather than a one-time event?',
-          options: [
-            'Because computers expire every 24 hours',
-            'Because threat actors continuously evolve new malware and social engineering tactics',
-            'Because software cannot be updated once installed',
-            'Because school terms are only 13 weeks long'
+            'Using only 3D graphics in every design',
+            'Arranging visual elements in order of importance so viewers naturally see the primary message first',
+            'Making all text exactly the same font size and color',
+            'Placing images upside down to surprise viewers'
           ],
           correctIndex: 1,
-          explanation: 'Adversaries constantly develop new attack vectors, making proactive security updates and vigilance an ongoing necessity.'
+          explanation: 'Visual hierarchy guides the viewer through the layout logically: Headline -> Sub-headline -> Call to Action -> Supporting Details.'
         },
         {
-          question: 'What is the role of FATap-CT in Fortune\'s Code & AI Lab?',
+          question: 'Why should you avoid using low-contrast color combinations like light yellow text on a white background?',
           options: [
-            'Selling computer cables',
-            'Providing pedagogical framework for computational thinking, digital literacy, and practical lab innovation',
-            'A game console controller',
-            'An offline music player'
+            'Printers refuse to print yellow ink',
+            'It creates visual strain and is virtually illegible for readers',
+            'Yellow font files consume excessive computer storage',
+            'Yellow text crashes the graphics software'
           ],
           correctIndex: 1,
-          explanation: 'FATap-CT powers the pedagogical foundation of computational thinking and practical digital technology skills.'
+          explanation: 'High contrast between background and foreground is required for readability and accessibility.'
         }
       ]
     },
@@ -409,55 +479,49 @@ In the Projects Room, your multi-week term project is now active. You will desig
     week_number: 8,
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'Network Architectures & Wireless Technologies',
-    learn_text: `Computer networks link two or more devices to share resources, printers, storage, and internet bandwidth.
+    title: 'Photo Editing, Digital Rights & Online Safety',
+    learn_text: `Digital creators must understand both the technical tools of media editing and the ethical legal framework governing digital content:
 
-Network Scales:
-1. PAN (Personal Area Network): Under 10 meters — Bluetooth headphones connected to your smartphone.
-2. LAN (Local Area Network): A single building or campus — your school computer lab or home Wi-Fi.
-3. MAN (Metropolitan Area Network): Covers an entire city — Lagos state surveillance camera fiber backbone.
-4. WAN (Wide Area Network): Spans countries and continents — the global Internet connected through undersea submarine fiber cables.
+1. Photo Editing Fundamentals:
+- Cropping: Eliminating background distractions and framing the subject with the rule of thirds.
+- Color Balance & Exposure: Adjusting brightness, contrast, and saturation to enhance clarity.
+- Resolution & Formats: Differentiating JPEG (compressed photos), PNG (transparent backgrounds), and SVG (scalable vector graphics).
 
-Network Topologies:
-- Star Topology: Every device connects to a central switch/hub. If one cable fails, only that device disconnects.
-- Mesh Topology: Every node connects to multiple nodes, offering maximum fault tolerance.
+2. Intellectual Property, Copyright & Fair Use:
+- Copyright gives authors, photographers, and musicians exclusive rights over their work.
+- Fair Use allows limited educational excerpting with proper citation.
+- Creative Commons (CC) licenses permit sharing under specified attribution terms.
 
-Wireless Security (Wi-Fi):
-Open public Wi-Fi without passwords exposes packets to interception. Modern secure Wi-Fi uses WPA2 or WPA3 encryption with strong pre-shared keys. Virtual Private Networks (VPNs) create an encrypted tunnel over untrusted networks.`,
-    do_instructions: `Compare Star vs Mesh topologies, examine how a school lab router isolates student traffic, and answer the network architecture questions.`,
+3. Managing Your Digital Footprint:
+Everything published online leaves a persistent trace. Students learn privacy settings, safe password hygiene, and compliance with the Nigeria Data Protection Act (NDPA).`,
+    do_instructions: `Evaluate copyright attribution scenarios, crop and adjust an academic banner image, and review privacy settings for personal media.`,
     content_json: {
-      dtConcept: 'Network scopes (PAN, LAN, MAN, WAN), topologies (Star, Mesh), and wireless security (WPA3, VPN).',
-      dtRealWorldCase: 'When MainOne and WACS undersea cables broke off the West African coast, international WAN traffic experienced delays, but local LAN systems inside Nigerian bank branches continued processing local queues.',
-      dtInteractiveType: 'network',
-      challenge: 'Determine why Star topology is the standard design for secondary school computer labs.',
+      dtConcept: 'Ethical digital citizenship combines creative image editing with copyright respect and active privacy protection.',
+      dtRealWorldCase: 'A Nigerian startup creator received a formal copyright infringement notice for using an uncredited commercial photo from Google Images; they resolved the issue by switching to Creative Commons licensed photography with clear artist attribution.',
+      dtInteractiveType: 'concept',
+      challenge: 'Differentiate between Creative Commons (CC-BY), Public Domain, and full commercial copyright.',
       quiz: [
         {
-          question: 'Which type of network covers an entire school compound or office building?',
-          options: ['PAN', 'LAN', 'MAN', 'WAN'],
-          correctIndex: 1,
-          explanation: 'LAN (Local Area Network) connects devices within a limited geographical area like a school campus or building.'
-        },
-        {
-          question: 'In a Star network topology, what happens if one computer’s cable is accidentally unplugged?',
+          question: 'If you find an image on Google Images search, can you freely use it on your commercial company website without permission?',
           options: [
-            'The entire school network crashes immediately',
-            'Only that disconnected computer loses network access; all others continue working normally',
-            'The central switch catches fire',
-            'All data on the network is permanently deleted'
+            'Yes, everything on Google Images is completely free for everyone',
+            'No, search engines display copyrighted works that require permission or an appropriate license (e.g. Creative Commons)',
+            'Yes, as long as you crop the top border',
+            'Yes, if you view it on a mobile phone'
           ],
           correctIndex: 1,
-          explanation: 'Star topology isolates each workstation connection to the central switch, preventing single-cable failures from taking down the whole network.'
+          explanation: 'Google merely indexes photos; the copyright belongs to the creator unless explicitly released under Creative Commons or Public Domain.'
         },
         {
-          question: 'What is the primary benefit of using a VPN (Virtual Private Network) on public Wi-Fi?',
+          question: 'What is a "digital footprint"?',
           options: [
-            'It downloads music without consuming storage',
-            'It encrypts your internet traffic through a secure tunnel so nearby snoopers cannot inspect your data',
-            'It increases physical screen brightness',
-            'It bypasses the need for electricity'
+            'The physical size of your laptop keyboard keys',
+            'The permanent record of data and activity left behind when using digital devices and online services',
+            'The ink left by a digital receipt printer',
+            'A special computer mouse shaped like a foot'
           ],
           correctIndex: 1,
-          explanation: 'A VPN wraps your data in an encrypted tunnel, protecting credentials from being captured over open public Wi-Fi.'
+          explanation: 'Your digital footprint consists of browsing history, social media posts, comments, photos, and login logs recorded across digital platforms.'
         }
       ]
     },
@@ -468,55 +532,45 @@ Open public Wi-Fi without passwords exposes packets to interception. Modern secu
     week_number: 9,
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'Data Representation: Binary, Hexadecimal & ASCII',
-    learn_text: `Underneath all software, graphics, and video games, computers operate purely on electrical voltages: High Voltage (1) and Low Voltage (0). This is the Binary System (Base-2).
+    title: 'Web Design Basics: HTML5 Semantic Structure & Inline CSS',
+    learn_text: `The World Wide Web is powered by markup and styling standards:
 
-Bits and Bytes:
-- Bit (Binary Digit): The smallest unit of digital data (0 or 1).
-- Nibble: 4 bits (e.g. 1010).
-- Byte: 8 bits (e.g. 01000001). A byte can represent 256 distinct values (from 0 to 255).
-- Kilobyte (KB): 1,024 bytes.
-- Megabyte (MB): 1,024 KB.
-- Gigabyte (GB): 1,024 MB.
+1. HTML5 (HyperText Markup Language):
+HTML tags structure page content:
+- Document Declaration: <!DOCTYPE html>
+- Enclosing container: <html>, <head> for metadata, <body> for visible content.
+- Semantic Tags: <header>, <nav>, <main>, <section>, <article>, <footer>.
+- Content elements: <h1> to <h6> (headings), <p> (paragraphs), <a> (hyperlinks), <img> (images), <ul>/<ol>/<li> (lists).
 
-ASCII & Character Encoding:
-The American Standard Code for Information Interchange (ASCII) assigns a unique numerical value to each letter:
-- Letter 'A' is decimal 65 -> Binary: 01000001
-- Letter 'B' is decimal 66 -> Binary: 01000010
-- Space ' ' is decimal 32 -> Binary: 00100000
+2. CSS (Cascading Style Sheets) Fundamentals:
+CSS controls visual styling:
+- Inline styling: <h1 style="color: #17182B; font-family: sans-serif;">
+- Properties: color, background-color, font-size, padding, margin, border.
 
-Hexadecimal (Base-16):
-Because binary strings are long and difficult for humans to read, engineers group 4 bits into one Hex digit (0-9, A-F). 
-For example: Binary 1111 1111 is Hex FF (Decimal 255). Used for web colors (e.g. #F5A623) and MAC addresses.`,
-    do_instructions: `Open the Secrets Lab! Translate your name into 8-bit binary and hexadecimal, and decode the binary mystery word.`,
+Students build their first personal biography or school club webpage directly using clean HTML and inline CSS.`,
+    do_instructions: `Write semantic HTML5 markup for a personal academic profile page including heading, profile summary, photo link, and skills list with inline CSS colors.`,
     content_json: {
-      dtConcept: 'Binary (Base-2), Hexadecimal (Base-16), ASCII character encoding, and byte measurement scales.',
-      dtRealWorldCase: 'When you take a digital photo on a phone, every pixel is stored as 3 bytes (Red, Green, Blue levels from 0 to 255). A 12-megapixel picture contains over 36 million bytes of binary numbers!',
-      dtInteractiveType: 'binary',
-      challenge: 'Convert binary 01000001 (65) and 01000010 (66) to their ASCII letters.',
+      dtConcept: 'HTML provides the structural skeleton of web pages while CSS defines typography, colors, and layout aesthetics.',
+      dtRealWorldCase: 'Over 1.9 billion websites worldwide rely on HTML5 semantic tags to ensure web accessibility for visually impaired screen readers and search engine indexers.',
+      dtInteractiveType: 'concept',
+      challenge: 'Assemble an HTML document structure containing header, paragraph, image link, and an unordered skills list.',
       quiz: [
         {
-          question: 'How many bits make up one standard byte?',
-          options: ['4 bits', '8 bits', '16 bits', '32 bits'],
+          question: 'Which HTML tag is used to create a clickable hyperlink to another web page?',
+          options: ['<link>', '<a> (anchor tag with href attribute)', '<href>', '<click>'],
           correctIndex: 1,
-          explanation: 'There are exactly 8 bits in one byte, capable of representing 256 unique states (2^8).'
+          explanation: 'The <a> tag with href attribute (<a href="https://example.com">Visit</a>) creates navigational hyperlinks.'
         },
         {
-          question: 'In ASCII encoding, what English letter corresponds to binary 01000001 (decimal 65)?',
-          options: ['Z', 'a', 'A', '1'],
-          correctIndex: 2,
-          explanation: 'In ASCII standard, uppercase "A" is decimal 65 (binary 01000001).'
-        },
-        {
-          question: 'Why do computer scientists frequently use Hexadecimal (Base-16) instead of long binary strings?',
+          question: 'What does the <!DOCTYPE html> declaration at the very top of a web document do?',
           options: [
-            'Hexadecimal is more compact and directly represents 4 bits with a single character',
-            'Hexadecimal is made of secret alien symbols',
-            'Hexadecimal uses less battery power',
-            'Computers only understand letters and not numbers'
+            'It sets the administrator password for the server',
+            'It tells the web browser that the document is written in modern standard HTML5',
+            'It downloads the entire Internet into computer memory',
+            'It turns off CSS styling'
           ],
-          correctIndex: 0,
-          explanation: 'Hexadecimal provides a clean, human-readable shorthand for binary; one hex character exactly represents one 4-bit nibble.'
+          correctIndex: 1,
+          explanation: '<!DOCTYPE html> instructs web browsers to render the document in modern standards compliance mode.'
         }
       ]
     },
@@ -527,57 +581,49 @@ For example: Binary 1111 1111 is Hex FF (Decimal 255). Used for web colors (e.g.
     week_number: 10,
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'Artificial Intelligence & Algorithmic Ethics',
-    learn_text: `Artificial Intelligence (AI) refers to computer systems engineered to perform tasks that traditionally require human intelligence — such as recognizing speech, identifying objects in images, making decisions, and translating languages.
+    title: 'ICT in Everyday Life: Fintech, E-Governance & Modern Services',
+    learn_text: `Information and Communication Technology (ICT) has transformed commerce, health, governance, and daily life in Nigeria and worldwide:
 
-How Modern AI Learns:
-Traditional software follows hardcoded rules written by a programmer: "IF score > 50 THEN print Pass".
-Machine Learning (ML), however, discovers patterns from massive datasets. By examining thousands of labeled examples, the model learns mathematical weights to predict outputs.
+1. Digital Payments & Fintech:
+- Automated Clearing (NIBSS Instant Payment): How bank transfers settle in seconds between different financial institutions.
+- USSD Banking (*737#, *919#): Enabling financial inclusion on basic feature phones without internet connections.
+- Point of Sale (POS) Terminals & QR Codes: Transforming retail market transactions across Lagos, Abuja, and Kano.
 
-The Pillars of Algorithmic Ethics:
-1. Algorithmic Bias: If training data lacks diversity or reflects historical prejudices, the AI will perpetuate unfair outcomes (e.g. facial recognition failing on darker skin tones).
-2. Deepfakes & Synthetic Media: Generative AI can create realistic fake audio and video. Citizens must critically verify media sources.
-3. Intellectual Property: Respecting original creators, artists, and writers whose work contributes to training sets.
-4. Human Agency: AI should empower human capability, not replace accountability for critical healthcare, judicial, or educational decisions.`,
-    do_instructions: `Review the ethical case studies on algorithmic fairness and synthetic media, and test your comprehension of AI principles.`,
+2. E-Governance & Citizen Services:
+- Digital Identity (National Identification Number NIN): Centralized verification preventing identity fraud.
+- Online Passport Applications (NIS) & Driving License renewals (FRSC).
+- Examination Portals (JAMB, WAEC, NECO): Online candidate registration, computerized testing (CBT), and digital scratch-card result checking.
+
+3. Telemedicine & Cloud Education:
+Remote consultations, electronic patient records, and virtual learning platforms like Fortune's Code & AI Lab.`,
+    do_instructions: `Trace the electronic pathway of a mobile bank transfer from customer smartphone to merchant terminal, and evaluate ICT impact on Nigerian commerce.`,
     content_json: {
-      dtConcept: 'Machine learning fundamentals, algorithmic bias, deepfakes, and ethical AI responsibility.',
-      dtRealWorldCase: 'In agriculture across Nigeria, computer vision models on farmers’ mobile phones scan cassava and maize leaves to diagnose plant diseases days before human eyes can detect symptoms, saving entire harvests.',
-      dtInteractiveType: 'ethics',
-      challenge: 'Evaluate how training data quality directly influences the fairness and reliability of an AI model.',
+      dtConcept: 'ICT infrastructure powers seamless instant transactions, decentralized public services, and educational access.',
+      dtRealWorldCase: 'During peak examination seasons, over 2 million Nigerian candidates check their WAEC and JAMB results simultaneously via secure web portals, replacing physical paper dispatch to thousands of secondary schools.',
+      dtInteractiveType: 'concept',
+      challenge: 'Map how USSD protocol enables digital banking on non-smart feature phones in rural areas.',
       quiz: [
         {
-          question: 'How does machine learning differ from conventional rule-based computer programming?',
+          question: 'Why is USSD (Unstructured Supplementary Service Data) technology vital for financial inclusion in Nigeria?',
           options: [
-            'Machine learning requires no computers at all',
-            'Machine learning learns patterns and weights from data rather than relying exclusively on hand-written rules',
-            'Machine learning only works in television sets',
-            'Conventional programming is always powered by solar energy'
+            'It requires a high-end 5G smartphone with expensive cameras',
+            'It works over GSM cellular signal on basic button feature phones without requiring internet data bundles',
+            'It only works inside commercial bank branches',
+            'It converts physical cash into gold coins'
           ],
           correctIndex: 1,
-          explanation: 'In machine learning, algorithms extract statistical relationships from data examples to make predictions.'
+          explanation: 'USSD operates over standard GSM signaling channels, allowing anyone with a basic phone to transfer funds and check balances without mobile internet.'
         },
         {
-          question: 'What is "algorithmic bias" in AI systems?',
+          question: 'What is a primary benefit of Computer-Based Testing (CBT) for examinations like JAMB?',
           options: [
-            'When the computer screen tilts to one side',
-            'When an AI produces systematically unfair or discriminatory predictions due to biased training data',
-            'When the internet speed fluctuates',
-            'A brand of computer headphones'
+            'Students can change answers after leaving the hall',
+            'Instant grading, elimination of paper leakage, and rapid nationwide result processing',
+            'Printers never have to be used again anywhere in the world',
+            'The examination lasts 24 hours continuously'
           ],
           correctIndex: 1,
-          explanation: 'Algorithmic bias occurs when training data or flawed assumptions cause the AI to favor or disadvantage particular groups.'
-        },
-        {
-          question: 'What is a "deepfake"?',
-          options: [
-            'A very deep hole in the ground',
-            'Synthetic video or audio generated by AI that convincingly impersonates real people saying things they never said',
-            'An encrypted submarine cable',
-            'A math formula used in geometry'
-          ],
-          correctIndex: 1,
-          explanation: 'Deepfakes use generative deep neural networks to produce deceptive media impersonations.'
+          explanation: 'CBT systems automate question randomization, immediate electronic grading, and tamper-resistant security.'
         }
       ]
     },
@@ -588,57 +634,50 @@ The Pillars of Algorithmic Ethics:
     week_number: 11,
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'Digital Law, Cybercrimes & Nigerian Regulations',
-    learn_text: `The digital domain is governed by legal frameworks that protect individuals, businesses, and critical national infrastructure.
+    title: 'Computer Maintenance, E-Waste & System Troubleshooting',
+    learn_text: `Preventive maintenance keeps computing equipment operating reliably and extends hardware lifespans:
 
-The Cybercrimes (Prohibition, Prevention, etc.) Act of Nigeria:
-Enacted to tackle cybercrime, protect citizens, and enforce accountability:
-1. Unauthorized Access & Hacking: Accessing a computer system, database, or school server without permission is a serious criminal offense punishable by fines and imprisonment.
-2. Identity Theft & Impersonation: Creating fake profiles or impersonating individuals online to defraud or deceive carries severe penal consequences.
-3. Cyberstalking & Harassment: Using digital devices to intimidate, threaten, or bully another person.
-4. Interception of Communications: Wiretapping or packet sniffing without lawful warrant.
+1. Preventive Hardware Care:
+- Keeping workstations free of dust, liquid spills, and food particles.
+- Ensuring adequate ventilation around CPU cooling fans and power supplies.
+- Cable management: Preventing cord tangling and tripping hazards.
+- Surge Protection: Using Uninterruptible Power Supplies (UPS) and voltage stabilizers to protect electronics against power fluctuations.
 
-Intellectual Property & Copyright:
-Software, written articles, photographs, and musical compositions are intellectual property. Software piracy (distributing cracked commercial software) violates copyright laws. Responsible technologists utilize Open Source or legitimately licensed digital tools.`,
-    do_instructions: `Review real-world digital legal scenarios in Nigeria, learn how to report cyber incidents, and complete the compliance evaluation.`,
+2. Software Diagnostics & Optimization:
+- Disk Cleanup: Removing temporary cache files and freeing SSD space.
+- Task Manager: Identifying rogue background programs consuming 100% CPU.
+- Safe Mode & Malware Scans: Isolating corrupted drivers and system faults.
+
+3. Safe E-Waste Disposal & Device Refurbishment:
+Recycling decommissioned motherboards, batteries, and LCD screens through authorized e-waste aggregators to recover copper and gold while sequestering toxic pollutants.`,
+    do_instructions: `Perform a diagnostic triage on 3 common computer faults (Overheating CPU, Unresponsive App, and Corrupted USB Drive) and prescribe corrective actions.`,
     content_json: {
-      dtConcept: 'The Nigerian Cybercrime Act, computer misuse, identity theft, copyright, and reporting mechanisms.',
-      dtRealWorldCase: 'A student who gained access to the school exam database using a leaked administrator password faced formal expulsion and legal sanctions under Section 6 of the Cybercrimes Act, demonstrating that digital actions carry real-world legal repercussions.',
+      dtConcept: 'Regular preventive maintenance, surge protection, and diagnostic troubleshooting protect hardware investments and prevent premature electronic waste.',
+      dtRealWorldCase: 'A secondary school computer lab doubled the lifespan of its 40 desktop PCs by performing termly compressed-air dust cleaning and installing a central 10kVA solar inverter to prevent power-cut damage.',
       dtInteractiveType: 'concept',
-      challenge: 'Distinguish between ethical (white-hat) security research and unlawful computer intrusion.',
+      challenge: 'Diagnose why a computer suddenly powers off after 15 minutes of intensive usage.',
       quiz: [
         {
-          question: 'Under the Nigerian Cybercrime Act, is accessing another person’s account without authorization considered a crime?',
+          question: 'If a desktop computer runs loudly and powers off abruptly after 15 minutes of use, what is the most likely physical hardware fault?',
           options: [
-            'No, it is just a harmless prank',
-            'Yes, unauthorized access and hacking are punishable by law with severe penalties',
-            'Only if the computer was made in Nigeria',
-            'Only on weekends'
+            'The mouse pad is upside down',
+            'CPU overheating due to dust-clogged fans or dried thermal paste triggering thermal shutdown',
+            'The computer monitor has too many pixels',
+            'The keyboard cable is too long'
           ],
           correctIndex: 1,
-          explanation: 'The Cybercrimes Act explicitly classifies unauthorized computer access as a serious criminal offense.'
+          explanation: 'CPUs have built-in thermal protection that automatically cuts power if temperatures exceed safe thresholds (usually 90-100°C).'
         },
         {
-          question: 'What is software piracy?',
+          question: 'What is the role of an Uninterruptible Power Supply (UPS) in a computing lab?',
           options: [
-            'Sailing a ship with a laptop onboard',
-            'The illegal copying, distribution, or unauthorized use of copyrighted software',
-            'Writing free open-source software',
-            'Formatting a flash drive'
+            'It provides instant battery backup power during blackouts so work can be saved safely without hardware shock',
+            'It increases the internet download speed by 500%',
+            'It prints color photos automatically',
+            'It replaces the computer CPU chip'
           ],
-          correctIndex: 1,
-          explanation: 'Software piracy involves illegally reproducing or distributing proprietary commercial code without purchasing a license.'
-        },
-        {
-          question: 'What differentiates an Ethical Hacker (White Hat) from a Malicious Hacker (Black Hat)?',
-          options: [
-            'Ethical hackers only hack at night',
-            'Ethical hackers have explicit written permission to test vulnerabilities and report them to help organizations defend systems',
-            'Ethical hackers do not use computers',
-            'There is no difference between them'
-          ],
-          correctIndex: 1,
-          explanation: 'White-hat ethical hackers operate with authorization, adhering to strict legal and ethical guidelines to discover and remediate vulnerabilities.'
+          correctIndex: 0,
+          explanation: 'A UPS provides battery backup and surge suppression, preventing sudden shutdowns and data corruption when mains power fails.'
         }
       ]
     },
@@ -649,58 +688,51 @@ Software, written articles, photographs, and musical compositions are intellectu
     week_number: 12,
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'Digital Career Pathways & Future Innovation',
-    learn_text: `The digital transformation of Africa and the global economy has generated high-impact, rewarding career pathways for students equipped with digital fluency.
+    title: 'Term Revision & Practical Skills Assessment',
+    learn_text: `A comprehensive evaluation consolidating the full JSS3 Digital Technologies curriculum:
 
-In-Demand Tech Specializations:
-1. Cybersecurity Analyst & Incident Responder: Defends organizations against threat actors, analyzes malware, and enforces fortress policies.
-2. Cloud Architect & Systems Engineer: Designs scalable distributed cloud infrastructure on Google Cloud, AWS, or Azure.
-3. Data Scientist & AI Engineer: Builds statistical models, neural networks, and algorithms to extract actionable insights from data.
-4. Full-Stack Software Engineer: Develops client web interfaces and server architectures powering mobile apps and fintech solutions.
-5. Digital Forensics Investigator: Works with law enforcement to gather admissible digital evidence from electronic storage devices.
+1. Advanced MS Word Mastery Drill:
+- Creating multi-section documents with mixed Portrait and Landscape pages.
+- Applying Section Breaks (Next Page & Continuous) with independent headers/footers.
+- Building structured financial tables with dynamic =SUM(ABOVE) formulas.
+- Implementing Mail Merge with conditional IF...THEN...ELSE rules.
 
-Future Frontiers:
-- Internet of Things (IoT): Smart agriculture, connected traffic systems, and smart energy grids.
-- Edge Computing: Processing calculations locally on devices rather than waiting for distant data centers.`,
-    do_instructions: `Explore the interactive technology careers roadmap, identify your areas of technical passion, and answer the career readiness questions.`,
+2. Presentation & Spreadsheets Drill:
+- Applying PowerPoint Animation Painter to clone animation stacks.
+- Configuring seamless Morph slide transitions.
+- Writing Excel =IF() grading formulas and conditional formatting heatmaps.
+
+3. Digital Citizenship & Systems Knowledge:
+- Intellectual property, NDPR compliance, safe e-waste management, and database query concepts.`,
+    do_instructions: `Complete the comprehensive 12-week review evaluation covering Word, PowerPoint, Excel, databases, and digital ethics.`,
     content_json: {
-      dtConcept: 'Career paths in cybersecurity, software engineering, cloud systems, and data science.',
-      dtRealWorldCase: 'Nigerian fintech startups like Paystack and Flutterwave were built by software engineers and cybersecurity specialists who began their journeys by mastering digital technologies in school labs.',
+      dtConcept: 'Synthesizing word processing automation, presentation choreography, spreadsheet logic, and digital ethics into professional capability.',
+      dtRealWorldCase: 'Students benchmark their practical skills against international digital literacy standards (ICDL and Microsoft Office Specialist certifications).',
       dtInteractiveType: 'concept',
-      challenge: 'Identify the key foundational skills common across both software development and cybersecurity careers.',
+      challenge: 'Audit and troubleshoot a multi-page document containing formatting and formula errors.',
       quiz: [
         {
-          question: 'Which technology professional is specifically responsible for defending networks and responding to security breaches?',
-          options: [
-            'Graphic Print Operator',
-            'Cybersecurity Analyst / Security Engineer',
-            'Hardware Delivery Driver',
-            'Social Media Influencer'
-          ],
+          question: 'Which tool allows you to replicate an animation effect stack from one PowerPoint shape to three other shapes without repeating settings?',
+          options: ['Format Painter', 'Animation Painter', 'Slide Master', 'Design Ideas'],
           correctIndex: 1,
-          explanation: 'Cybersecurity analysts monitor network traffic, identify vulnerabilities, and prevent unauthorized security intrusions.'
+          explanation: 'The Animation Painter copies timing, duration, and effects from a selected animated object to target objects.'
         },
         {
-          question: 'What is the Internet of Things (IoT)?',
-          options: [
-            'A website that sells used phones',
-            'A network of physical devices embedded with sensors, software, and connectivity to exchange data',
-            'The total number of internet cables in the world',
-            'A software program that deletes viruses'
-          ],
+          question: 'To calculate the total sum of numbers in the column directly above the active cell in a Word table, what formula do you enter?',
+          options: ['=TOTAL(COLUMN)', '=SUM(ABOVE)', '=ADD(UP)', '=MATH(TOP)'],
           correctIndex: 1,
-          explanation: 'IoT connects everyday physical objects (smart meters, sensors, connected appliances) to the internet.'
+          explanation: '=SUM(ABOVE) is the standard built-in formula in Word table calculation fields.'
         },
         {
-          question: 'Which fundamental mindset is most essential across all technology careers?',
+          question: 'What happens to page numbering if you insert a Section Break, unlink headers, and choose Page Number Format > "Start at 1"?',
           options: [
-            'Memorizing answers without understanding how they work',
-            'Computational thinking, curiosity, continuous learning, and structured problem-solving',
-            'Refusing to ask questions when stuck',
-            'Never updating computer software'
+            'All previous pages are deleted',
+            'The new section restarts numbering at 1 independently of preceding pages',
+            'The printer prints page numbers in red ink',
+            'Page numbers become invisible forever'
           ],
           correctIndex: 1,
-          explanation: 'Continuous learning and computational problem-solving form the enduring backbone of technological excellence.'
+          explanation: 'Unlinking and restarting numbering allows front matter (i, ii) and body chapters (1, 2, 3) to possess independent numbering sequences.'
         }
       ]
     },
@@ -711,55 +743,35 @@ Future Frontiers:
     week_number: 13,
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'Capstone Exhibition & Secrets Lab Final Defense',
-    learn_text: `Welcome to Week 13 — the Grand Capstone Exhibition for JSS3 Digital Technologies at Fortune's Code & AI Lab!
+    title: 'Capstone Showcase, Digital Portfolio & Parent Exhibition',
+    learn_text: `Congratulations on reaching the grand finale of JSS3 Digital Technologies! 
 
-Over this comprehensive 13-week journey powered by FATap-CT, you have progressed from digital literacy foundations to cyber defense, cryptographic ciphers in the Secrets Lab, network topology engineering, binary computation, ethical AI discernment, and digital law.
+This capstone week focuses on curating your achievements into a Master Digital Portfolio:
+1. Compiling Digital Deliverables:
+- Professional Multi-Section Word Document (incorporating Section Breaks, =SUM(ABOVE) tables, and Mail Merge logic).
+- Cinematic PowerPoint Presentation (featuring Morph transitions and Animation Painter choreography).
+- Financial Spreadsheet Model with nested IF statements.
+- Semantic HTML/CSS Web Profile.
 
-Final Capstone Requirements:
-1. Ensure your Capstone Project in the Projects Room is turned in with complete solution notes.
-2. Complete all 4 classified operative challenges in the Secrets Lab to attain Master Cryptographer clearance.
-3. Send your one-tap WhatsApp notification to your teacher and to Fortune for review!
-4. Present your completed booklet to your parent/guardian for their end-of-term sign-off.`,
-    do_instructions: `Perform your final review, verify that your project has been submitted with WhatsApp notification sent, and achieve your certification badge!`,
+2. Presentation to Parents & Teachers:
+Students present their projects to teachers and parents, demonstrating the tangible productivity and technical excellence developed across the term. Graduation certificates are endorsed by Fortune's Code & AI Lab (FATap-CT).`,
+    do_instructions: `Assemble your term digital deliverables, submit your capstone project, send the one-tap WhatsApp notification to your teacher and Fortune, and celebrate with your parents!`,
     content_json: {
-      dtConcept: 'Term culmination: Capstone defense, Secrets Lab operative master certification, and WhatsApp project notification.',
-      dtRealWorldCase: 'In professional software and security projects, the final defense and client signoff certify that deliverables meet all architectural standards and regulatory requirements.',
+      dtConcept: 'The Digital Portfolio serves as tangible proof of applied computing fluency, document automation, and presentation mastery.',
+      dtRealWorldCase: 'Fortune Academy graduates showcase their digital portfolios during secondary school admissions and scholarship interviews, demonstrating mastery far beyond ordinary computer basics.',
       dtInteractiveType: 'concept',
-      challenge: 'Confirm that your term booklet shows full progress and that parent sign-off is ready for completion.',
+      challenge: 'Present your completed capstone project and review all verified parent signoffs in your booklet.',
       quiz: [
         {
-          question: 'What is the final step after completing your Capstone Project submission in the Projects Room?',
+          question: 'What is the primary purpose of compiling a student Digital Portfolio at the conclusion of the JSS3 Digital Technologies programme?',
           options: [
-            'Delete all your project files immediately',
-            'Tap the one-tap WhatsApp notification button to alert your teacher and Fortune',
-            'Turn off the computer forever',
-            'Switch schools'
+            'To delete all computer hard drives before vacation',
+            'To provide a comprehensive, verifiable showcase of applied document automation, presentation, and analytical skills for parents and future academic admissions',
+            'To sell computer mice to classmates',
+            'To hide class notes from teachers'
           ],
           correctIndex: 1,
-          explanation: 'The one-tap WhatsApp notification provides instant verification to both your classroom teacher and Fortune (FATap-CT).'
-        },
-        {
-          question: 'What security clearance is earned by solving all 4 missions in the Secrets Lab room?',
-          options: [
-            'Novice Visitor',
-            'Master Cipher Analyst & Cyber Detective',
-            'Password Guesser',
-            'Guest Student'
-          ],
-          correctIndex: 1,
-          explanation: 'Solving the Caesar dispatch, Trojan binary, steganography carrier, and hash match unlocks Master Cipher Analyst status.'
-        },
-        {
-          question: 'How do parents verify their child’s term achievements in Fortune’s Code & AI Lab?',
-          options: [
-            'By traveling to a physical headquarters in another country',
-            'Via the Parent Booklet View with one-tap digital verification signoff for each week',
-            'Through postal mail only',
-            'They cannot see any progress'
-          ],
-          correctIndex: 1,
-          explanation: 'The dedicated Parent Booklet View enables parents to review completed weekly labs, outputs, and sign off digitally.'
+          explanation: 'A digital portfolio provides authentic evidence of mastery, showcasing real artifacts, reports, and presentations produced throughout the curriculum.'
         }
       ]
     },
@@ -772,42 +784,58 @@ export const DT_ASSIGNMENTS: CaiAssignment[] = [
     id: 'asg-dt-001',
     tier: 'jss',
     programme: 'digital_technologies',
-    school_id: null,
-    title: 'School Cyber Safety & Anti-Phishing Guide',
-    instructions: `Create an informative digital safety briefing for new junior secondary students.
-Requirements:
-1. Explain what phishing is using a relatable Nigerian banking or social media scenario.
-2. List 4 distinct red flags that indicate an incoming message is fraudulent.
-3. Formulate 3 golden rules for maintaining bulletproof password security (including passphrase entropy).`,
-    due_note: 'by Friday 5:00 PM',
-    created_at: new Date('2026-01-18T08:00:00Z').toISOString(),
+    title: 'Advanced MS Word: Multi-Section School Newsletter with Mixed Orientations',
+    instructions: `Construct a 3-page publication in Microsoft Word demonstrating section isolation:
+1. Page 1 (Cover / Foreword): Portrait orientation, 1-inch margins, Title in Heading 1 style.
+2. Section Break (Next Page) between Page 1 and Page 2.
+3. Page 2 (Term Budget & Facility Expenditure): Set orientation to Landscape. Create a 5x4 table with Fee Description, Term Quantity, Unit Cost, and Total. Place =SUM(ABOVE) in the total cell and format with ₦ currency symbol.
+4. Section Break (Next Page) between Page 2 and Page 3. Set Page 3 back to Portrait with a 2-column layout for student club news.
+5. Unlink Header on Section 2 so it displays 'FINANCIAL APPENDIX - TABLE 2.1' without affecting Page 1.`,
+    due_note: 'Upload your .docx file or paste your step-by-step verification log below.',
+    created_at: new Date('2026-01-12T08:00:00Z').toISOString(),
   },
   {
     id: 'asg-dt-002',
     tier: 'jss',
     programme: 'digital_technologies',
-    school_id: null,
-    title: 'Secrets Lab Caesar & Binary Cryptanalysis',
-    instructions: `Analyze encrypted dispatch samples from the Secrets Lab room:
-1. Decrypt the ciphertext "KHOOR ZRUOG" (Shift 3).
-2. Encode your first name into 8-bit binary ASCII representation.
-3. Explain why Caesar ciphers are vulnerable to frequency analysis in modern computing.`,
-    due_note: 'by Wednesday morning',
-    created_at: new Date('2026-01-25T08:00:00Z').toISOString(),
+    title: 'Mail Merge Conditional Logic: Individualized Parent Notification Letters',
+    instructions: `Configure a dynamic Mail Merge operation using Microsoft Word:
+1. Connect a 5-record student spreadsheet containing: StudentName, GuardianName, AttendanceRate, TermScore, and FeeStatus.
+2. Build the master letter template with merge fields: 'Dear «GuardianName», Re: End of Term Assessment for «StudentName»'.
+3. Insert Mail Merge Rule (If...Then...Else...):
+   - IF TermScore >= 75 THEN insert: 'We are thrilled to announce that your ward has earned Academic Honours for this term.'
+   - ELSE insert: 'Please schedule an academic consultation during next week’s parent conference.'
+4. Verify dynamic clause changes across all 5 recipient records.`,
+    due_note: 'Turn in your merge template and verification summary.',
+    created_at: new Date('2026-01-16T08:00:00Z').toISOString(),
   },
   {
     id: 'asg-dt-003',
     tier: 'jss',
     programme: 'digital_technologies',
-    school_id: null,
-    title: 'Local Area Network (LAN) Diagram Specification',
-    instructions: `Draft a network topology proposal for a 30-computer secondary school laboratory.
-Requirements:
-1. Select between Star and Bus topology, explaining why your choice provides better reliability.
-2. Detail the roles of the central network switch, Wi-Fi router, and firewall.
-3. Recommend security policies for guest Wi-Fi access.`,
-    due_note: 'by next Monday',
-    created_at: new Date('2026-02-01T08:00:00Z').toISOString(),
+    title: 'PowerPoint Kinetic Presentation: Morph Transitions & Animation Painter',
+    instructions: `Create a 4-slide presentation showcasing an African Innovation invention:
+1. Slide 1: Introduction with Hero Device icon.
+2. Slide 2: Exploded component view using PowerPoint Morph transition with a 1.75s duration.
+3. Apply a 3-layer animation stack (Float In + Gold Pulse Emphasis + Delay) to Card 1.
+4. Double-click the Animation Painter to clone the identical animation timing onto Cards 2, 3, and 4.
+5. Record automated timings and export presentation summary.`,
+    due_note: 'Submit your slide presentation link or notes.',
+    created_at: new Date('2026-01-20T08:00:00Z').toISOString(),
+  },
+  {
+    id: 'asg-dt-004',
+    tier: 'jss',
+    programme: 'digital_technologies',
+    title: 'Spreadsheet Gradebook Engine: Nested IF Formulas & Conditional Highlighting',
+    instructions: `Build an automated student performance tracker in MS Excel or Google Sheets:
+1. Enter names and test scores for 8 students across 3 subjects (Math, English, Digital Tech).
+2. Calculate Total Marks using =SUM() and Term Average using =AVERAGE().
+3. Write a nested IF formula for Remark:
+   =IF(Average>=75, "Distinction", IF(Average>=50, "Credit", "Remedial"))
+4. Apply Conditional Formatting: Green fill for scores >= 70, Red fill for scores < 50.`,
+    due_note: 'Turn in formula sheet screenshot or file link.',
+    created_at: new Date('2026-01-24T08:00:00Z').toISOString(),
   },
 ];
 
@@ -816,53 +844,55 @@ export const DT_PROJECTS: CaiProject[] = [
     id: 'prj-dt-001',
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'School Cyber Safety & Digital Citizenship Protocol',
-    description: `Design a comprehensive cybersecurity policy and awareness charter for secondary school students.
+    title: 'School Annual Academic Prospectus & Financial Ledger (Advanced MS Word)',
+    description: `Engineer a comprehensive 6-page institutional prospectus for Fortune Academy utilizing advanced Microsoft Word document architecture.
 Deliverables:
-1. Threat Audit: Identify top 3 cyber risks facing students (phishing, identity theft, malware downloads).
-2. Action Protocol: Step-by-step guidance on creating high-entropy passphrases, configuring 2FA, and protecting personal footprints.
-3. Legal Awareness: Summary of key provisions from the Nigerian Cybercrime Act regarding unauthorized computer access and cyberbullying.
-4. Emergency Response: Clear reporting procedure if a student suspects an account breach.`,
+1. Front Matter & Pagination: Title page and Table of Contents using roman numerals (i, ii), formatted with automated Heading 1/2 styles.
+2. Section Break Isolation: Insert Section Break (Next Page) between Front Matter and Body chapters. Unlink headers so Chapter 1 starts on page 1 with Arabic numerals.
+3. Mixed Orientation Spread: Page 4 must be configured as Landscape orientation to accommodate a wide 6-column school budget table.
+4. Dynamic Table Formulas: Implement =SUM(ABOVE) and =AVERAGE(ABOVE) inside the financial table with custom Naira (₦) number formatting, verified with F9 recalculation.
+5. Print-Ready PDF Export: Compile document into a publication-grade PDF file.`,
     deliverables: [
-      'Comprehensive Cyber Defense Policy Write-Up',
-      'Anti-Phishing Checklist & Real-World Examples',
-      'Nigerian Cybercrime Act Student Compliance Guide'
+      'Multi-Section Master Prospectus (.docx / PDF)',
+      'Automated Table of Contents & Unlinked Pagination Schema',
+      'Landscape Financial Table with Verified =SUM(ABOVE) Field Codes'
     ],
-    created_at: new Date('2026-01-15T08:00:00Z').toISOString(),
+    created_at: new Date('2026-01-10T08:00:00Z').toISOString(),
   },
   {
     id: 'prj-dt-002',
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'The Secrets Lab Cryptosystem & Anti-Phishing Defense Portal',
-    description: `Construct a practical cryptography and social engineering defense project utilizing the Secrets Lab tools.
+    title: 'Interactive Multimedia STEM Pitch Deck (PowerPoint Morph & Animation Painter)',
+    description: `Produce a 6-slide cinematic pitch deck presenting an eco-friendly solar cold-storage solution for Nigerian agricultural markets.
 Deliverables:
-1. Cryptographic Analysis: Implement a multi-stage cipher transmission (combining Caesar shift + binary ASCII stream).
-2. Decryption Key Distribution Plan: Explain how the sender securely shares the key with the recipient without interception.
-3. Phishing Email Deconstruction: Create an annotated case study of a deceptive phishing email, pointing out 5 disguised indicators.
-4. Steganography Demonstration: Document how a hidden secret was concealed inside a standard school text message.`,
+1. Morph Keynote Transitions: Connect Slide 2 (National Overview Map) and Slide 3 (Regional Lagos/Kano Hubs) using seamless Morph object scaling and repositioning.
+2. Animation Choreography: Build an intricate entrance and emphasis animation sequence for the hero innovation card, and use the Animation Painter to clone the choreography across all 4 feature pillars.
+3. Multimedia Integration: Embed audio voiceover narration and an interactive looping video prototype.
+4. Export: Interactive self-running slide show (.ppsx) and presentation speaker notes.`,
     deliverables: [
-      'Secrets Lab Cipher Decryption Proof & Findings',
-      'Annotated Phishing Defense Dossier',
-      'Steganography Concealment & Extraction Report'
+      '6-Slide Interactive Presentation (.pptx / .ppsx)',
+      'Morph Transition Demonstration Video / Screencast',
+      'Animation Painter Timing & Sequence Cue Sheet'
     ],
-    created_at: new Date('2026-01-15T08:00:00Z').toISOString(),
+    created_at: new Date('2026-01-12T08:00:00Z').toISOString(),
   },
   {
     id: 'prj-dt-003',
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'School Computer Lab LAN Network Design & Disaster Plan',
-    description: `Develop a complete architectural blueprint for a state-of-the-art, secure secondary school computing laboratory.
+    title: 'Mass Communication Mail Merge Engine & Automated Parent Dispatch',
+    description: `Design an enterprise-grade automated dispatch system for a secondary school issuing individualized term report cards and admission letters.
 Deliverables:
-1. Network Topology: Star topology design blueprint connecting 40 student PCs, 1 teacher workstation, and 2 network printers to a managed switch.
-2. IP Addressing & Subnetting: Assign private IP address ranges (e.g. 192.168.1.x) with gateway and DNS server specifications.
-3. Wireless Defense: Configure WPA3-Enterprise security with isolated VLANs for staff and students.
-4. Disaster Recovery Plan: Regular encrypted backups, power surge protection (UPS/Inverter), and ransomware containment protocols.`,
+1. Clean Recipient Database: 15-record spreadsheet with student biodata, scores, fee balances, and guardian contact details.
+2. Master Template Letter: Formal institutional letterhead, date field codes (Alt+Shift+D), and merge field placeholders.
+3. Multi-Rule Conditional Logic: Implement nested IF...THEN...ELSE mail merge rules for scholarship awards, PTA levy balances, and academic probation notices.
+4. Output: Generate merged test batch of 15 individual personalized PDF letters.
+5. One-Tap WhatsApp Dispatch: Use the platform WhatsApp notification integration to dispatch project completion proof to the class teacher and Fortune.`,
     deliverables: [
-      'Network Topology Architecture Blueprint',
-      'IP Addressing Table & Security Parameter Sheet',
-      'Disaster Recovery & Backup Continuity Protocol'
+      'Master Mail Merge Template Document (.docx)',
+      '15-Record Structured Recipient Database (.xlsx / .csv)',
+      'Sample Generated Letters with Verified Conditional Branches'
     ],
     created_at: new Date('2026-01-15T08:00:00Z').toISOString(),
   },
@@ -873,102 +903,64 @@ export const DT_TRAININGS: CaiTraining[] = [
     id: 'trn-dt-001',
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'How Modern Encryption Works: From Caesar to RSA',
-    content: `Master notes on the historical evolution of cryptography:
-- The limitation of classical substitution ciphers: Letter frequency analysis can crack them in seconds.
-- Why modern public-key cryptography (RSA and Elliptic Curve) relies on the mathematical difficulty of factoring enormous prime numbers.
-- How your web browser creates a temporary symmetric session key during an SSL/TLS handshake.`,
+    title: 'Mastering MS Word Section Breaks & Independent Layout Isolation',
+    content: `Comprehensive Masterclass on Microsoft Word Section Breaks:
+- Why Page Breaks (Ctrl+Enter) fail when you need different orientations: Page breaks merely advance the cursor to the next page while leaving margin, orientation, and header bindings intact.
+- The 4 Types of Section Breaks:
+  1. Next Page: Starts the new section on the next page (essential for landscape tables or starting new chapters).
+  2. Continuous: Starts the new section on the exact same page (essential for switching from a 1-column title to a 3-column newsletter layout).
+  3. Even Page & Odd Page: Forces sections to start on facing booklet pages.
+- The "Link to Previous" Secret: When you enter Header & Footer edit mode in Section 2, Word by default enables 'Link to Previous'. Deselect this button immediately to customize headers, omit running heads on chapter openers, or restart page numbering.`,
     created_at: new Date('2026-01-12T08:00:00Z').toISOString(),
   },
   {
     id: 'trn-dt-002',
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'Zero-Trust Architecture & Securing School Records',
-    content: `Security best practices for institutional networks:
-- "Never trust, always verify": The foundational motto of modern cybersecurity.
-- Principle of Least Privilege (PoLP): Users only get access to the specific files they need for their immediate role.
-- Segmenting networks to prevent lateral movement of malware.`,
+    title: 'The Hidden Calculation Engine in Microsoft Word Tables',
+    content: `Mastering Math Formulas in Word Without Opening Excel:
+- How Table Cell Addressing Works in Word: Like Excel, columns are lettered A, B, C, D... and rows are numbered 1, 2, 3, 4... The top-left cell is A1.
+- Built-in Positional Arguments:
+  - =SUM(ABOVE): Totals all numeric cells directly above until a blank cell or header is encountered.
+  - =SUM(LEFT): Totals all numeric cells to the left.
+  - =AVERAGE(ABOVE), =COUNT(ABOVE), =MAX(ABOVE), =MIN(ABOVE).
+- The Field Code Hotkeys:
+  - Press Alt + F9 to toggle between the calculated number (e.g. ₦85,000) and the underlying field code { =SUM(ABOVE) \\# "₦#,##0.00" }.
+  - Press F9 while selecting any field to force recalculation when values in the table are adjusted.`,
     created_at: new Date('2026-01-14T08:00:00Z').toISOString(),
   },
   {
     id: 'trn-dt-003',
     tier: 'jss',
     programme: 'digital_technologies',
-    title: 'The Anatomy of a Social Engineering Attack',
-    content: `In-depth case studies on human deception techniques:
-- Pretexting: Creating an invented scenario to steal information.
-- Baiting: Leaving an infected USB drive labeled "Exam Questions 2026" in a classroom.
-- Urgent Impersonation: Posing as a company executive or principal requesting immediate gift card or token transfers.`,
+    title: 'Automating Personalization: Word Mail Merge Rules & Conditional Branching',
+    content: `Mastering Advanced Mail Merge Logic:
+- How Mailings > Rules Transforms Mass Correspondence:
+  - 'If...Then...Else...': Compares recipient spreadsheet data (e.g. BalanceDue > 0) to insert customized reminders for debtors while inserting thank-you receipts for paid accounts.
+  - 'Next Record If': Skips specific records (e.g. inactive students).
+  - 'Merge Record #': Inserts sequential numbering (e.g. Certificate #001, #002...).
+- Step-by-Step Procedure:
+  1. Mailings > Select Recipients > Use an Existing List (Excel spreadsheet).
+  2. Insert Merge Fields for name and address.
+  3. Mailings > Rules > If...Then...Else...
+  4. Preview Results to test both conditional paths.
+  5. Finish & Merge > Edit Individual Documents to generate the final batch.`,
     created_at: new Date('2026-01-16T08:00:00Z').toISOString(),
   },
-];
-
-export interface SecretMission {
-  id: string;
-  title: string;
-  codename: string;
-  difficulty: 'Novice' | 'Intermediate' | 'Advanced' | 'Master';
-  description: string;
-  hint: string;
-  challengeType: 'caesar' | 'binary' | 'stego' | 'hash';
-  encryptedPayload: string;
-  solutionKey: string;
-  expectedAnswer: string; // uppercase normalized
-  badgeReward: string;
-}
-
-export const SECRETS_LAB_MISSIONS: SecretMission[] = [
   {
-    id: 'mis-01',
-    title: 'Intercepted Military Dispatch',
-    codename: 'OPERATION CAESAR',
-    difficulty: 'Novice',
-    description: 'An intercepted transmission was captured on a radio frequency. The sender used a classical Caesar cipher with a shift of 3.',
-    encryptedPayload: 'WKH VHFUHW FRGH LV IDWDS',
-    solutionKey: 'Shift 3 backwards',
-    hint: 'Every letter is shifted 3 positions ahead. Reverse it by shifting 3 steps back: W -> T, K -> H, H -> E...',
-    challengeType: 'caesar',
-    expectedAnswer: 'THE SECRET CODE IS FATAP',
-    badgeReward: 'Caesar Decryption Specialist 🎖️',
-  },
-  {
-    id: 'mis-02',
-    title: 'The Trojan Binary Stream',
-    codename: 'OPERATION BITSTREAM',
-    difficulty: 'Intermediate',
-    description: 'A network packet sniffer intercepted this 8-bit ASCII binary sequence from an incoming server request.',
-    encryptedPayload: '01000011 01001111 01000100 01000101',
-    solutionKey: '8-bit ASCII binary',
-    hint: '01000011 is 67 (C), 01001111 is 79 (O), 01000100 is 68 (D), 01000101 is 69 (E).',
-    challengeType: 'binary',
-    expectedAnswer: 'CODE',
-    badgeReward: 'Binary Codebreaker ⚡',
-  },
-  {
-    id: 'mis-03',
-    title: 'Hidden Steganography Token',
-    codename: 'OPERATION GHOSTWRITER',
-    difficulty: 'Advanced',
-    description: 'A classified password was concealed inside a school newsletter carrier text using covert keyword extraction.',
-    encryptedPayload: 'Fortune Always Trains Ambitious Pupils - Computational Thinking',
-    solutionKey: 'Acronym First-Letter Extraction',
-    hint: 'Look at the first letter of each word: (F)ortune (A)lways (T)rains (A)mbitious (P)upils - (C)(T).',
-    challengeType: 'stego',
-    expectedAnswer: 'FATAP-CT',
-    badgeReward: 'Steganography Sleuth 🕵️',
-  },
-  {
-    id: 'mis-04',
-    title: 'The SHA-256 Hash Collision Check',
-    codename: 'OPERATION ZERO COLLISION',
-    difficulty: 'Master',
-    description: 'An operative submitted the SHA-256 hash starting with "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8". Identify the 8-letter common word that generated this hash.',
-    encryptedPayload: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8',
-    solutionKey: 'SHA-256 Digest of standard English word',
-    hint: 'It is the most common word people mistakenly use for access protection (starts with "p", 8 letters).',
-    challengeType: 'hash',
-    expectedAnswer: 'PASSWORD',
-    badgeReward: 'Master Cryptographer 👑',
+    id: 'trn-dt-004',
+    tier: 'jss',
+    programme: 'digital_technologies',
+    title: 'PowerPoint Animation Painter & The Morph Slide Transition',
+    content: `Professional Keynote Choreography in Microsoft PowerPoint:
+- The Animation Painter Double-Click Secret:
+  - Single-click applies animation to one object.
+  - Double-click locks the brush! You can rapidly click 10 different shapes across the canvas to clone entrance, emphasis, delay, and duration timings simultaneously. Press Esc to release.
+- The Morph Transition:
+  - Duplicate your base slide (Ctrl+D).
+  - On Slide 2, move, enlarge, rotate, or recolor elements.
+  - Apply Transitions > Morph. PowerPoint automatically calculates vector transformation frames, creating Pixar/Apple-style continuous camera movement.
+  - The exclamation mark naming trick: Name objects with '!!shape1' in the Selection Pane (Alt+F10) on both slides to force Morph between completely different geometry types!`,
+    created_at: new Date('2026-01-18T08:00:00Z').toISOString(),
   },
 ];

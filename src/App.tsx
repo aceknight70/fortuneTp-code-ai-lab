@@ -19,7 +19,6 @@ import { AboutUsRoom } from './components/AboutUsRoom';
 import { HomeDashboardRoom } from './components/HomeDashboardRoom';
 import { FATapSplashScreen } from './components/FATapSplashScreen';
 import { SecretsLabRoom } from './components/SecretsLabRoom';
-import { DigitalTechPlayground } from './components/DigitalTechPlayground';
 import { FloatingGeminiGuide } from './components/FloatingGeminiGuide';
 
 export default function App() {
@@ -144,10 +143,24 @@ export default function App() {
   const currentAttempt =
     studentProgress.find((p) => p.week_number === currentWeekNumber) || null;
 
+  const isDT =
+    selectedClass?.programme === 'digital_technologies' ||
+    (selectedClass?.programme as string) === 'digital_tech';
+
   const handleSelectWeekForLab = (weekNum: number) => {
     setCurrentWeekNumber(weekNum);
-    setStudentRoom('lab');
+    if (isDT) {
+      setStudentRoom('scheme');
+    } else {
+      setStudentRoom('lab');
+    }
   };
+
+  useEffect(() => {
+    if (isDT && (studentRoom === 'lab' || studentRoom === 'editor')) {
+      setStudentRoom('scheme');
+    }
+  }, [isDT, studentRoom]);
 
   const isSeniorOrJuniorStudent =
     currentRole === 'student' &&
@@ -229,35 +242,23 @@ export default function App() {
                   <SecretsLabRoom cls={selectedClass} student={selectedStudent} />
                 )}
 
-                {studentRoom === 'lab' && activeWeek && (
+                {studentRoom === 'lab' && activeWeek && !isDT && (
                   <>
-                    {selectedClass.programme === 'digital_technologies' ? (
-                      <DigitalTechPlayground
+                    {selectedClass.tier === 'jss' && (
+                      <JSSPlayground
                         week={activeWeek}
                         student={selectedStudent}
                         existingProgress={currentAttempt}
                         onSaveProgress={handleSaveProgress}
-                        onNavigateToSecretsLab={() => setStudentRoom('secrets')}
                       />
-                    ) : (
-                      <>
-                        {selectedClass.tier === 'jss' && (
-                          <JSSPlayground
-                            week={activeWeek}
-                            student={selectedStudent}
-                            existingProgress={currentAttempt}
-                            onSaveProgress={handleSaveProgress}
-                          />
-                        )}
-                        {selectedClass.tier === 'ss' && (
-                          <SSPlayground
-                            week={activeWeek}
-                            student={selectedStudent}
-                            existingProgress={currentAttempt}
-                            onSaveProgress={handleSaveProgress}
-                          />
-                        )}
-                      </>
+                    )}
+                    {selectedClass.tier === 'ss' && (
+                      <SSPlayground
+                        week={activeWeek}
+                        student={selectedStudent}
+                        existingProgress={currentAttempt}
+                        onSaveProgress={handleSaveProgress}
+                      />
                     )}
                   </>
                 )}

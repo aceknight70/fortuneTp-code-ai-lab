@@ -47,7 +47,9 @@ export function SideNav({
   mobileOpen,
   onCloseMobile,
 }: SideNavProps) {
-  const isDT = selectedClass.programme === 'digital_technologies';
+  const isDT =
+    selectedClass.programme === 'digital_technologies' ||
+    (selectedClass.programme as string) === 'digital_tech';
 
   const navItems: {
     id: StudentNavRoom;
@@ -55,30 +57,41 @@ export function SideNav({
     icon: React.ElementType;
     badge?: string;
     highlight?: boolean;
-  }[] = [
-    { id: 'home', label: 'Home', icon: Home },
-    {
-      id: 'secrets',
-      label: 'Secrets Lab',
-      icon: Lock,
-      badge: 'CIPHER',
-      highlight: isDT,
-    },
-    { id: 'lab', label: 'Weekly Lab', icon: PlayCircle },
-    {
-      id: 'editor',
-      label: isDT ? 'Script Lab' : 'AI System',
-      icon: Terminal,
-      badge: 'IDE',
-      highlight: !isDT,
-    },
-    { id: 'scheme', label: 'Scheme of Work', icon: BookOpen },
-    { id: 'trainings', label: 'Trainings', icon: GraduationCap },
-    { id: 'assignments', label: 'Assignments', icon: FileCheck },
-    { id: 'projects', label: 'Projects', icon: FolderGit2 },
-    { id: 'questions', label: 'Ask a Question', icon: HelpCircle },
-    { id: 'about', label: 'About Us', icon: Info },
-  ];
+  }[] = isDT
+    ? [
+        { id: 'home', label: 'Home', icon: Home },
+        {
+          id: 'secrets',
+          label: 'Secrets Lab',
+          icon: Lock,
+          badge: 'OFFICE',
+          highlight: true,
+        },
+        { id: 'scheme', label: 'Scheme of Work', icon: BookOpen },
+        { id: 'trainings', label: 'Trainings', icon: GraduationCap },
+        { id: 'assignments', label: 'Assignments', icon: FileCheck },
+        { id: 'projects', label: 'Projects', icon: FolderGit2 },
+        { id: 'questions', label: 'Ask a Question', icon: HelpCircle },
+        { id: 'about', label: 'About Us', icon: Info },
+      ]
+    : [
+        { id: 'home', label: 'Home', icon: Home },
+        { id: 'secrets', label: 'Secrets Lab', icon: Lock, badge: 'OFFICE' },
+        { id: 'lab', label: 'Weekly Lab', icon: PlayCircle },
+        {
+          id: 'editor',
+          label: 'AI System',
+          icon: Terminal,
+          badge: 'IDE',
+          highlight: true,
+        },
+        { id: 'scheme', label: 'Scheme of Work', icon: BookOpen },
+        { id: 'trainings', label: 'Trainings', icon: GraduationCap },
+        { id: 'assignments', label: 'Assignments', icon: FileCheck },
+        { id: 'projects', label: 'Projects', icon: FolderGit2 },
+        { id: 'questions', label: 'Ask a Question', icon: HelpCircle },
+        { id: 'about', label: 'About Us', icon: Info },
+      ];
 
   const handleNavClick = (id: StudentNavRoom) => {
     onSelectRoom(id);

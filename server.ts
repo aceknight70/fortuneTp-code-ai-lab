@@ -58,7 +58,7 @@ async function startServer() {
       const systemInstruction = `You are Fortune's AI Guide, a friendly, encouraging computer science and digital technology tutor at Fortune's Code & AI Lab (powered by FATap-CT) in Nigeria.
 You are assisting ${studentName}, who is currently in the ${tier.toUpperCase()} tier (${
         isDT
-          ? 'JSS3 Digital Technologies Track, covering Cybersecurity, Cryptography & Secrets Lab, Networks, Information Privacy, Digital Law & AI Ethics'
+          ? 'JSS3 Digital Technologies Track, covering Advanced MS Word (Page Layout, Tables & Formulas, Mail Merge Rules), Advanced MS PowerPoint (Morph Transition, Animation Painter), Spreadsheets, Databases, Graphic Design, Web Design, and Practical Digital Technologies'
           : tier === 'primary'
           ? 'Primary Tier (Visual Block Building)'
           : tier === 'jss'
@@ -70,8 +70,8 @@ The student is currently inside the "${room}" room.
 PEDAGOGICAL TEACHING STYLE:
 1. Warm, conversational, inspiring, and concise (2-4 short paragraphs maximum).
 2. Never just blurt out direct test answers or code cheats; explain the fundamental intuition step-by-step so the student feels confident.
-3. Use relatable Nigerian everyday examples (e.g. Lagos traffic, market trade, sending bank tokens, school exams, mobile data top-up, street addresses) to make abstract ideas crystal clear.
-4. When talking about cybersecurity or the Secrets Lab: highlight ethical responsibility (white-hat defense, protecting personal privacy and school records).
+3. Use relatable Nigerian everyday examples (e.g. Lagos traffic, market trade, school fee bills, admission letters, mobile data top-up, street addresses) to make abstract ideas crystal clear.
+4. When talking about the Secrets Lab: guide them on MS Word hidden powers (Section Breaks, =SUM(ABOVE), Mail Merge Rules) and PowerPoint tools (Morph transition, Animation Painter).
 5. Always sign off or encourage them with warmth.`;
 
       // Build context from history
@@ -322,32 +322,33 @@ function generateOfflineGuideReply(
   const lower = message.toLowerCase();
 
   if (programme === 'digital_technologies') {
-    if (lower.includes('caesar') || lower.includes('cipher') || lower.includes('secret')) {
-      return `Hello ${studentName}! The Caesar Cipher is one of the oldest encryption methods. Think of it like shifting the letters along a carousel. If your shift key is 3, then 'A' hops forward 3 positions to become 'D', 'B' becomes 'E', and 'C' becomes 'F'! 
+    if (lower.includes('section') || lower.includes('break') || lower.includes('page layout') || lower.includes('landscape')) {
+      return `Hello ${studentName}! In Microsoft Word, a regular Page Break (Ctrl+Enter) only moves text, but keeps the whole document locked into the same margins and orientation. 
 
-To decrypt it, the recipient shifts every letter backwards by the exact same key. Head over to our Secrets Lab room in the sidebar to spin the live cipher wheel yourself! 🔐`;
+To have Page 2 in Landscape (for a wide financial table) while Page 1 and Page 3 stay Portrait, you must insert a Section Break (Next Page)! Then in Section 2, uncheck 'Link to Previous' on the Header ribbon and change Orientation to Landscape. Test this in our Secrets Lab! 📄✨`;
     }
 
-    if (lower.includes('phish') || lower.includes('scam') || lower.includes('email')) {
-      return `Great cybersecurity question, ${studentName}! Phishing is when malicious actors send fake emails, SMS, or WhatsApp links pretending to be a bank or school official to steal sensitive details like passwords or PINs.
+    if (lower.includes('sum') || lower.includes('formula') || lower.includes('table') || lower.includes('f9')) {
+      return `Great table calculation question, ${studentName}! You don't need Excel to calculate sums in Word. 
 
-Defense rule: Always verify the sender address, avoid rushing into suspicious links, and never share confidential tokens!`;
+Place your cursor in the bottom cell of a table column, click Table Tools Layout > Formula, and insert =SUM(ABOVE). Word will sum all the numbers directly above it! The secret trick: if numbers change later, press F9 to recalculate the formula field code immediately! 🧮⚡`;
     }
 
-    if (lower.includes('password') || lower.includes('hash') || lower.includes('entropy')) {
-      return `Passwords are your digital fortress! Instead of short simple words, combine 3-4 random memorable words with symbols and numbers (passphrase). 
+    if (lower.includes('mail merge') || lower.includes('merge') || lower.includes('rule') || lower.includes('if')) {
+      return `Mail Merge is an executive superpower, ${studentName}! Instead of manually editing 200 letters, you connect a spreadsheet of names and test scores to a master Word template.
 
-In modern systems, passwords aren't stored in plain text — they are passed through a cryptographic hash function like SHA-256 to generate an irreversible unique digest!`;
+With Mailings > Rules > 'If...Then...Else...', Word dynamically inspects each recipient's data: for example, if EntranceScore >= 75, Word inserts an Academic Scholarship paragraph, otherwise it inserts standard registration guidelines! ✉️🎯`;
     }
 
-    if (lower.includes('network') || lower.includes('lan') || lower.includes('ip') || lower.includes('dns')) {
-      return `Think of computer networks like postal delivery! Every computer on the Internet gets a unique IP address (like a home address). 
+    if (lower.includes('morph') || lower.includes('animation') || lower.includes('powerpoint') || lower.includes('slide')) {
+      return `PowerPoint has cinematic capabilities! 
 
-DNS (Domain Name System) translates human-friendly domain names into computer IP numbers. In your school lab, devices connect through a Local Area Network (LAN) switch or router.`;
+1. Animation Painter: Double-click the Animation Painter paintbrush to lock it, then click Card A, Card B, and Card C to clone multi-step zoom and pulse animations across shapes instantly.
+2. The Morph Transition: Duplicate your slide, move and enlarge an element on Slide 2, and turn on Transitions > Morph. PowerPoint automatically creates smooth, fluid camera and shape transformations! 🎬✨`;
     }
 
     return `Hello ${studentName}! I am Fortune's AI Guide for the JSS3 Digital Technologies track. 
-Whether you're exploring the Secrets Lab ciphers, investigating network protocols, analyzing cyber defenses, or preparing your Capstone Project, I am right here to help you understand every concept! 
+Whether you're exploring the Secrets Lab (Section Breaks, =SUM(ABOVE), Mail Merge Rules, Morph, Animation Painter), checking the 13-week Scheme of Work, or preparing your Capstone Project, I am right here to help you understand every concept step-by-step! 
 
 What would you like to explore today?`;
   }

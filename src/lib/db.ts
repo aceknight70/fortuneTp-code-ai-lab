@@ -83,6 +83,9 @@ function setLocalItem<T>(key: string, value: T): void {
 
 // Initial hydration & migration check
 export function ensureDatabaseSeeded(): void {
+  const CURRICULUM_VERSION = 'v2_authoritative_jss3_dt';
+  const storedVersion = localStorage.getItem(`${STORAGE_KEY_PREFIX}curriculum_version`);
+
   // Check if classes need Digital Technologies update
   const storedClasses = getLocalItem<CaiClass[]>('classes', []);
   const hasDTClass = storedClasses.some((c) => c.programme === 'digital_technologies' || c.class_pin === 'DT-301');
@@ -90,32 +93,50 @@ export function ensureDatabaseSeeded(): void {
     setLocalItem('classes', SEED_CLASSES);
   }
 
-  // Check if weeks need Digital Technologies curriculum update
-  const storedWeeks = getLocalItem<CaiWeek[]>('weeks', []);
-  const hasDTWeeks = storedWeeks.some((w) => w.programme === 'digital_technologies');
-  if (!storedWeeks.length || !hasDTWeeks) {
-    setLocalItem('weeks', SEED_WEEKS);
-  }
+  // If curriculum version changed or first load, purge fabricated DT content and reload authentic syllabus
+  if (storedVersion !== CURRICULUM_VERSION) {
+    const existingWeeks = getLocalItem<CaiWeek[]>('weeks', []);
+    const nonDTWeeks = existingWeeks.filter((w) => (w.programme || 'code_ai') !== 'digital_technologies' && (w.programme as string) !== 'digital_tech');
+    setLocalItem('weeks', [...nonDTWeeks, ...SEED_WEEKS.filter(w => w.programme === 'digital_technologies')]);
 
-  // Check assignments
-  const storedAssignments = getLocalItem<CaiAssignment[]>('assignments', []);
-  const hasDTAssignments = storedAssignments.some((a) => a.programme === 'digital_technologies');
-  if (!storedAssignments.length || !hasDTAssignments) {
-    setLocalItem('assignments', SEED_ASSIGNMENTS);
-  }
+    const existingAssignments = getLocalItem<CaiAssignment[]>('assignments', []);
+    const nonDTAssignments = existingAssignments.filter((a) => (a.programme || 'code_ai') !== 'digital_technologies' && (a.programme as string) !== 'digital_tech');
+    setLocalItem('assignments', [...nonDTAssignments, ...SEED_ASSIGNMENTS.filter(a => a.programme === 'digital_technologies')]);
 
-  // Check projects
-  const storedProjects = getLocalItem<CaiProject[]>('projects', []);
-  const hasDTProjects = storedProjects.some((p) => p.programme === 'digital_technologies');
-  if (!storedProjects.length || !hasDTProjects) {
-    setLocalItem('projects', SEED_PROJECTS);
-  }
+    const existingProjects = getLocalItem<CaiProject[]>('projects', []);
+    const nonDTProjects = existingProjects.filter((p) => (p.programme || 'code_ai') !== 'digital_technologies' && (p.programme as string) !== 'digital_tech');
+    setLocalItem('projects', [...nonDTProjects, ...SEED_PROJECTS.filter(p => p.programme === 'digital_technologies')]);
 
-  // Check trainings
-  const storedTrainings = getLocalItem<CaiTraining[]>('trainings', []);
-  const hasDTTrainings = storedTrainings.some((t) => t.programme === 'digital_technologies');
-  if (!storedTrainings.length || !hasDTTrainings) {
-    setLocalItem('trainings', SEED_TRAININGS);
+    const existingTrainings = getLocalItem<CaiTraining[]>('trainings', []);
+    const nonDTTrainings = existingTrainings.filter((t) => (t.programme || 'code_ai') !== 'digital_technologies' && (t.programme as string) !== 'digital_tech');
+    setLocalItem('trainings', [...nonDTTrainings, ...SEED_TRAININGS.filter(t => t.programme === 'digital_technologies')]);
+
+    localStorage.setItem(`${STORAGE_KEY_PREFIX}curriculum_version`, CURRICULUM_VERSION);
+  } else {
+    // Standard fallback check
+    const storedWeeks = getLocalItem<CaiWeek[]>('weeks', []);
+    const hasDTWeeks = storedWeeks.some((w) => w.programme === 'digital_technologies');
+    if (!storedWeeks.length || !hasDTWeeks) {
+      setLocalItem('weeks', SEED_WEEKS);
+    }
+
+    const storedAssignments = getLocalItem<CaiAssignment[]>('assignments', []);
+    const hasDTAssignments = storedAssignments.some((a) => a.programme === 'digital_technologies');
+    if (!storedAssignments.length || !hasDTAssignments) {
+      setLocalItem('assignments', SEED_ASSIGNMENTS);
+    }
+
+    const storedProjects = getLocalItem<CaiProject[]>('projects', []);
+    const hasDTProjects = storedProjects.some((p) => p.programme === 'digital_technologies');
+    if (!storedProjects.length || !hasDTProjects) {
+      setLocalItem('projects', SEED_PROJECTS);
+    }
+
+    const storedTrainings = getLocalItem<CaiTraining[]>('trainings', []);
+    const hasDTTrainings = storedTrainings.some((t) => t.programme === 'digital_technologies');
+    if (!storedTrainings.length || !hasDTTrainings) {
+      setLocalItem('trainings', SEED_TRAININGS);
+    }
   }
 
   if (!localStorage.getItem(`${STORAGE_KEY_PREFIX}schools`)) {

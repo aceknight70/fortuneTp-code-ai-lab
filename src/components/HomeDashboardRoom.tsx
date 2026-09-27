@@ -37,8 +37,9 @@ export function HomeDashboardRoom({
   onNavigateRoom,
   onSelectWeekForLab,
 }: HomeDashboardRoomProps) {
-  const [recentFiles, setRecentFiles] = useState<CaiFile[]>([]);
-  const isDT = cls.programme === 'digital_technologies';
+  const isDT =
+    cls.programme === 'digital_technologies' ||
+    (cls.programme as string) === 'digital_tech';
 
   useEffect(() => {
     loadRecentFiles();
@@ -67,7 +68,7 @@ export function HomeDashboardRoom({
           </h1>
           <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
             {isDT
-              ? 'Ready to investigate? Explore the classified Secrets Lab for Caesar ciphers, binary decoding, and cyber defenses, or complete your weekly lab challenge below.'
+              ? 'Master Microsoft Office hidden power tools (Section Breaks, =SUM(ABOVE), Mail Merge Rules, Morph, Animation Painter) and explore the 13-week Scheme of Work.'
               : 'Ready to build? Dive into the AI System IDE for open-ended Python programming, or complete your Week ' + currentWeekNumber + ' curriculum challenge below.'}
           </p>
         </div>
@@ -75,13 +76,22 @@ export function HomeDashboardRoom({
         {/* Big Launch CTA */}
         <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {isDT ? (
-            <button
-              onClick={() => onNavigateRoom('secrets')}
-              className="flex items-center justify-center gap-2 px-6 py-3.5 bg-[#F5A623] hover:bg-amber-400 text-[#17182B] rounded-xl text-sm font-black transition shadow-md cursor-pointer"
-            >
-              <Lock className="w-4 h-4" />
-              <span>Enter Secrets Lab</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => onNavigateRoom('secrets')}
+                className="flex items-center justify-center gap-2 px-6 py-3.5 bg-[#F5A623] hover:bg-amber-400 text-[#17182B] rounded-xl text-sm font-black transition shadow-md cursor-pointer"
+              >
+                <Lock className="w-4 h-4" />
+                <span>Enter Secrets Lab</span>
+              </button>
+              <button
+                onClick={() => onNavigateRoom('scheme')}
+                className="flex items-center justify-center gap-2 px-4 py-3.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-bold transition border border-slate-700 cursor-pointer"
+              >
+                <BookOpen className="w-4 h-4 text-[#F5A623]" />
+                <span>Scheme of Work</span>
+              </button>
+            </div>
           ) : (
             <button
               id="dashboard-launch-ide"
@@ -136,7 +146,7 @@ export function HomeDashboardRoom({
 
       {/* Main Grid: Active Week Card & Quick Jump Rooms */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: This Week's Lab Card */}
+        {/* Left Column: This Week's Card */}
         <div className="lg:col-span-7 space-y-4">
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-4">
             <div className="flex items-center justify-between">
@@ -146,7 +156,7 @@ export function HomeDashboardRoom({
                 </div>
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Curriculum Mission
+                    Curriculum Module
                   </span>
                   <h3 className="font-bold text-sm text-[#17182B]">{activeWeek?.title}</h3>
                 </div>
@@ -160,7 +170,7 @@ export function HomeDashboardRoom({
               ) : (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
                   <Clock className="w-3.5 h-3.5" />
-                  <span>Ready to Attempt</span>
+                  <span>Ready to Study</span>
                 </span>
               )}
             </div>
@@ -173,55 +183,120 @@ export function HomeDashboardRoom({
 
             <div className="flex items-center justify-between pt-2">
               <span className="text-xs text-slate-500">
-                Includes interactive playground + Mini AI pattern detector.
+                {isDT
+                  ? 'Includes Part A subtopics & precision test specs.'
+                  : 'Includes interactive playground + Mini AI pattern detector.'}
               </span>
               <button
-                onClick={() => onSelectWeekForLab(activeWeek?.week_number || currentWeekNumber)}
+                onClick={() => {
+                  if (isDT) {
+                    onNavigateRoom('scheme');
+                  } else {
+                    onSelectWeekForLab(activeWeek?.week_number || currentWeekNumber);
+                  }
+                }}
                 className="flex items-center gap-2 px-5 py-2.5 bg-[#17182B] hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition shadow-xs"
               >
-                <PlayCircle className="w-4 h-4 text-[#F5A623]" />
-                <span>{isCurrentWeekDone ? 'Review Weekly Lab' : 'Launch Week ' + currentWeekNumber}</span>
+                {isDT ? (
+                  <>
+                    <BookOpen className="w-4 h-4 text-[#F5A623]" />
+                    <span>View Week {currentWeekNumber} Specifications</span>
+                  </>
+                ) : (
+                  <>
+                    <PlayCircle className="w-4 h-4 text-[#F5A623]" />
+                    <span>{isCurrentWeekDone ? 'Review Weekly Lab' : 'Launch Week ' + currentWeekNumber}</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
 
-          {/* Recent Files in Workspace */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-sm text-[#17182B] flex items-center gap-2">
-                <FileCode className="w-4 h-4 text-slate-600" />
-                <span>Recent Files in AI System</span>
-              </h3>
-              <button
-                onClick={() => onNavigateRoom('editor')}
-                className="text-xs font-bold text-[#F5A623] hover:underline"
-              >
-                View all files →
-              </button>
-            </div>
-
-            {recentFiles.length === 0 ? (
-              <p className="text-xs text-slate-400 italic">No files created yet. Click "Open AI System" to start.</p>
-            ) : (
-              <div className="space-y-2">
-                {recentFiles.map((f) => (
-                  <div
-                    key={f.id}
-                    onClick={() => onNavigateRoom('editor')}
-                    className="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:border-amber-200 hover:bg-amber-50/30 cursor-pointer transition text-xs"
-                  >
-                    <div className="flex items-center gap-2 font-mono font-semibold text-slate-800">
-                      <FileCode className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{f.filename}</span>
-                    </div>
-                    <span className="text-[10px] text-slate-400 font-mono">
-                      {new Date(f.updated_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                ))}
+          {/* Left Column Bottom Card: DT Secrets Highlights OR Python Recent Files */}
+          {isDT ? (
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-sm text-[#17182B] flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-[#F5A623]" />
+                  <span>MS Office Secrets Mastered in Lab</span>
+                </h3>
+                <button
+                  onClick={() => onNavigateRoom('secrets')}
+                  className="text-xs font-bold text-[#F5A623] hover:underline"
+                >
+                  Enter Secrets Lab →
+                </button>
               </div>
-            )}
-          </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                <div
+                  onClick={() => onNavigateRoom('secrets')}
+                  className="p-3 rounded-xl border border-slate-100 hover:border-amber-200 hover:bg-amber-50/20 cursor-pointer transition text-xs"
+                >
+                  <div className="font-bold text-slate-800">📄 Section Breaks</div>
+                  <div className="text-[11px] text-slate-500">Mixed Portrait/Landscape pages in 1 file</div>
+                </div>
+                <div
+                  onClick={() => onNavigateRoom('secrets')}
+                  className="p-3 rounded-xl border border-slate-100 hover:border-amber-200 hover:bg-amber-50/20 cursor-pointer transition text-xs"
+                >
+                  <div className="font-bold text-slate-800">🧮 Table Math (=SUM(ABOVE))</div>
+                  <div className="text-[11px] text-slate-500">Live Word formulas with F9 recalculate</div>
+                </div>
+                <div
+                  onClick={() => onNavigateRoom('secrets')}
+                  className="p-3 rounded-xl border border-slate-100 hover:border-amber-200 hover:bg-amber-50/20 cursor-pointer transition text-xs"
+                >
+                  <div className="font-bold text-slate-800">✉️ Mail Merge Rules</div>
+                  <div className="text-[11px] text-slate-500">Dynamic IF...THEN...ELSE clauses</div>
+                </div>
+                <div
+                  onClick={() => onNavigateRoom('secrets')}
+                  className="p-3 rounded-xl border border-slate-100 hover:border-amber-200 hover:bg-amber-50/20 cursor-pointer transition text-xs"
+                >
+                  <div className="font-bold text-slate-800">🎬 Morph & Animation Painter</div>
+                  <div className="text-[11px] text-slate-500">Cinematic PowerPoint slide choreography</div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-sm text-[#17182B] flex items-center gap-2">
+                  <FileCode className="w-4 h-4 text-slate-600" />
+                  <span>Recent Files in AI System</span>
+                </h3>
+                <button
+                  onClick={() => onNavigateRoom('editor')}
+                  className="text-xs font-bold text-[#F5A623] hover:underline"
+                >
+                  View all files →
+                </button>
+              </div>
+
+              {recentFiles.length === 0 ? (
+                <p className="text-xs text-slate-400 italic">No files created yet. Click "Open AI System" to start.</p>
+              ) : (
+                <div className="space-y-2">
+                  {recentFiles.map((f) => (
+                    <div
+                      key={f.id}
+                      onClick={() => onNavigateRoom('editor')}
+                      className="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:border-amber-200 hover:bg-amber-50/30 cursor-pointer transition text-xs"
+                    >
+                      <div className="flex items-center gap-2 font-mono font-semibold text-slate-800">
+                        <FileCode className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{f.filename}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {new Date(f.updated_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Right Column: Room Launchpads */}
@@ -257,11 +332,11 @@ export function HomeDashboardRoom({
                     Secrets Lab
                   </h4>
                   <span className="text-[9px] px-1.5 py-0.2 rounded font-mono font-bold bg-[#F5A623] text-[#17182B] uppercase">
-                    CIPHER
+                    OFFICE PRO
                   </span>
                 </div>
                 <p className={`text-[11px] ${isDT ? 'text-slate-300' : 'text-slate-500'}`}>
-                  Cryptography, ciphers &amp; cyber defense
+                  MS Word &amp; PowerPoint secrets (=SUM, Section Breaks, Morph)
                 </p>
               </div>
             </div>
