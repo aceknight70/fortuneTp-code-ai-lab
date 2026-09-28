@@ -159,6 +159,9 @@ export function SecretsLabRoom({ cls, student }: SecretsLabRoomProps) {
   };
 
   // ===================== SECRET 2: TABLE MATH (=SUM(ABOVE)) STATE =====================
+  const [showTableVideos, setShowTableVideos] = useState(true);
+  const [repeatHeaderRows, setRepeatHeaderRows] = useState(false);
+  const [tableFeedback, setTableFeedback] = useState<string>('');
   const [tuitionAmount, setTuitionAmount] = useState<number>(45000);
   const [scienceAmount, setScienceAmount] = useState<number>(15000);
   const [libraryAmount, setLibraryAmount] = useState<number>(8000);
@@ -168,26 +171,114 @@ export function SecretsLabRoom({ cls, student }: SecretsLabRoomProps) {
   const [calculatedTotal, setCalculatedTotal] = useState<number>(80000);
   const [staleTotal, setStaleTotal] = useState(false);
 
-  const handleUpdateFee = (newTuition: number) => {
-    setTuitionAmount(newTuition);
+  // Real Microsoft Word Table & Ribbon Selection State
+  const [selectedTableCell, setSelectedTableCell] = useState<
+    'tuition' | 'science' | 'library' | 'ict' | 'total' | null
+  >('total');
+  const [showFormulaDialog, setShowFormulaDialog] = useState(false);
+  const [formulaInputValue] = useState('=SUM(ABOVE)');
+  const [formulaNumberFormat, setFormulaNumberFormat] = useState('₦#,##0.00');
+  const [hasTestedF9Update, setHasTestedF9Update] = useState(false);
+  const [f9Pulse, setF9Pulse] = useState(false);
+  const [activeRibbonTab, setActiveRibbonTab] = useState<'layout' | 'design' | 'home'>('layout');
+  const [showContextMenu, setShowContextMenu] = useState(false);
+
+  // Dynamic sum calculation of all four rows
+  const actualCurrentSum = tuitionAmount + scienceAmount + libraryAmount + ictAmount;
+
+  // Multi-cell editing handler for any row in the table
+  const handleUpdateFee = (
+    cellId: 'tuition' | 'science' | 'library' | 'ict',
+    newAmount: number
+  ) => {
+    if (cellId === 'tuition') setTuitionAmount(newAmount);
+    if (cellId === 'science') setScienceAmount(newAmount);
+    if (cellId === 'library') setLibraryAmount(newAmount);
+    if (cellId === 'ict') setIctAmount(newAmount);
+
+    setSelectedTableCell(cellId);
+
     if (tableFormulaInserted) {
       setStaleTotal(true);
+      setTableFeedback(
+        `✏️ Amount changed to ₦${newAmount.toLocaleString()}! In Microsoft Word, tables do NOT auto-recalculate like Excel. The total is now stale at ₦${calculatedTotal.toLocaleString()} until you press F9.`
+      );
+    } else {
+      setTableFeedback(
+        `✏️ Amount updated to ₦${newAmount.toLocaleString()}. Now select the Grand Total cell to insert =SUM(ABOVE).`
+      );
     }
   };
 
-  const handleInsertFormula = () => {
+  const handleOpenFormulaDialog = () => {
+    setSelectedTableCell('total');
+    setShowFormulaDialog(true);
+    setTableFeedback(
+      "Word Ribbon: Opened Table Tools > Layout tab > Data group > Formula (fx) dialog box."
+    );
+  };
+
+  const handleConfirmFormula = () => {
     setTableFormulaInserted(true);
-    setCalculatedTotal(tuitionAmount + scienceAmount + libraryAmount + ictAmount);
+    setShowFormulaDialog(false);
+    setCalculatedTotal(actualCurrentSum);
     setStaleTotal(false);
+    setSelectedTableCell('total');
+    setTableFeedback(
+      `✓ Formula =SUM(ABOVE) inserted into Word Field Code! Calculated initial sum: ₦${actualCurrentSum.toLocaleString()}.00.`
+    );
   };
 
   const handlePressF9 = () => {
-    if (tableFormulaInserted) {
-      setCalculatedTotal(tuitionAmount + scienceAmount + libraryAmount + ictAmount);
-      setStaleTotal(false);
+    if (!tableFormulaInserted) {
+      setTableFeedback(
+        "⚠️ No formula field found! First click 'Formula (fx)' on the Layout ribbon above to insert =SUM(ABOVE)."
+      );
+      return;
+    }
+    setCalculatedTotal(actualCurrentSum);
+    setStaleTotal(false);
+    setHasTestedF9Update(true);
+    setF9Pulse(true);
+    setTimeout(() => setF9Pulse(false), 800);
+    setShowContextMenu(false);
+    setTableFeedback(
+      `⚡ F9 (Update Field) Executed! Microsoft Word recalculated all cells above. Grand Total updated to ₦${actualCurrentSum.toLocaleString()}.00.`
+    );
+    if (repeatHeaderRows) {
       markSecretSolved('secret-02');
     }
   };
+
+  // Keyboard shortcut listener for F9 and Alt+F9 keys
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (activeSecret.interactiveType === 'table_math') {
+        if (e.key === 'F9' || e.code === 'F9') {
+          e.preventDefault();
+          handlePressF9();
+        } else if (e.altKey && (e.key === 'F9' || e.code === 'F9')) {
+          e.preventDefault();
+          setShowFieldCodes((prev) => !prev);
+          setTableFeedback('⌨️ Alt + F9 detected: Toggled Word Field Codes view.');
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [
+    activeSecret.interactiveType,
+    tableFormulaInserted,
+    actualCurrentSum,
+    repeatHeaderRows,
+  ]);
+
+  // Check if Secret 2 is mastered
+  useEffect(() => {
+    if (tableFormulaInserted && !staleTotal && (hasTestedF9Update || repeatHeaderRows)) {
+      markSecretSolved('secret-02');
+    }
+  }, [tableFormulaInserted, staleTotal, hasTestedF9Update, repeatHeaderRows]);
 
   // ===================== SECRET 3: MAIL MERGE RULES STATE =====================
   interface StudentRecipient {
@@ -972,145 +1063,1083 @@ export function SecretsLabRoom({ cls, student }: SecretsLabRoomProps) {
             </div>
           )}
 
-          {/* ==================== WORKSTATION 2: TABLE MATH ==================== */}
+          {/* ==================== WORKSTATION 2: TABLE MATH & REPEAT HEADERS ==================== */}
           {activeSecret.interactiveType === 'table_math' && (
             <div className="space-y-6">
-              {/* Controls */}
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex flex-wrap items-center gap-3">
-                <button
-                  onClick={handleInsertFormula}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-                    tableFormulaInserted
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-[#17182B] text-white hover:bg-slate-800'
-                  }`}
-                >
-                  <Table className="w-3.5 h-3.5" />
-                  <span>
-                    {tableFormulaInserted
-                      ? 'Formula Active: =SUM(ABOVE)'
-                      : 'Insert Formula (=SUM(ABOVE))'}
-                  </span>
-                </button>
-
-                <button
-                  onClick={() => setShowFieldCodes(!showFieldCodes)}
-                  className={`px-3 py-2 rounded-lg text-xs font-bold transition border ${
-                    showFieldCodes
-                      ? 'bg-amber-100 border-amber-300 text-amber-900'
-                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  <Code2 className="w-3.5 h-3.5 inline mr-1" />
-                  <span>Alt + F9: {showFieldCodes ? 'Hide Field Code' : 'Toggle Field Code'}</span>
-                </button>
-
-                <button
-                  onClick={handlePressF9}
-                  disabled={!tableFormulaInserted}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-                    !tableFormulaInserted
-                      ? 'opacity-50 cursor-not-allowed bg-slate-100 text-slate-400'
-                      : staleTotal
-                      ? 'bg-amber-500 hover:bg-amber-600 text-[#17182B] animate-bounce shadow-sm'
-                      : 'bg-slate-800 hover:bg-slate-700 text-white'
-                  }`}
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Press F9 (Recalculate Table)</span>
-                </button>
-              </div>
-
-              {/* Live Interactive Word Table */}
-              <div className="bg-white p-6 rounded-xl border border-slate-300 shadow-sm max-w-2xl mx-auto space-y-4">
-                <div className="flex items-center justify-between border-b pb-2">
-                  <div className="font-serif font-bold text-sm text-[#17182B]">
-                    FORTUNE ACADEMY PTA INVOICE SCHEDULE
+              {/* Watch First: Collapsible Video Tutorials Panel */}
+              <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl border border-indigo-900/60 shadow-md overflow-hidden">
+                <div className="p-4 sm:p-5 flex items-center justify-between border-b border-indigo-900/40">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-indigo-600/50 text-indigo-200 flex items-center justify-center shrink-0">
+                      <Video className="w-5 h-5 text-indigo-300" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-sm font-bold text-white">Watch First: Word Tables Tutorials</h3>
+                        <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-400 text-slate-950">
+                          Recommended
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-indigo-200">
+                        Erin Wright Writing guides — Inserting tables &amp; repeating headers across multi-page documents
+                      </p>
+                    </div>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-400">TABLE TOOLS LAYOUT</span>
+                  <button
+                    onClick={() => setShowTableVideos((prev) => !prev)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold text-white transition cursor-pointer shrink-0"
+                  >
+                    <span>{showTableVideos ? 'Hide Videos' : 'Show Videos'}</span>
+                    {showTableVideos ? (
+                      <ChevronUp className="w-4 h-4" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" />
+                    )}
+                  </button>
                 </div>
 
-                <table className="w-full text-xs text-left border-collapse border border-slate-300">
-                  <thead>
-                    <tr className="bg-slate-100 font-bold text-slate-700">
-                      <th className="border border-slate-300 p-2">Item Description</th>
-                      <th className="border border-slate-300 p-2 text-right">Term Amount (₦)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="border border-slate-300 p-2">Term Tuition &amp; Instruction</td>
-                      <td className="border border-slate-300 p-2 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <span>₦</span>
-                          <input
-                            type="number"
-                            value={tuitionAmount}
-                            onChange={(e) => handleUpdateFee(Number(e.target.value) || 0)}
-                            className="w-24 text-right border border-amber-300 rounded px-1.5 py-0.5 font-mono bg-amber-50/50 font-bold"
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="border border-slate-300 p-2">Science Lab &amp; Chemicals</td>
-                      <td className="border border-slate-300 p-2 text-right font-mono">
-                        ₦{scienceAmount.toLocaleString()}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="border border-slate-300 p-2">Digital Library &amp; LMS</td>
-                      <td className="border border-slate-300 p-2 text-right font-mono">
-                        ₦{libraryAmount.toLocaleString()}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="border border-slate-300 p-2">ICT Systems &amp; Internet</td>
-                      <td className="border border-slate-300 p-2 text-right font-mono">
-                        ₦{ictAmount.toLocaleString()}
-                      </td>
-                    </tr>
-                    {/* Total Row with Formula */}
-                    <tr className="bg-slate-50 font-bold">
-                      <td className="border border-slate-300 p-2.5 text-slate-800">
-                        Grand Total (Payable):
-                      </td>
-                      <td
-                        onClick={handlePressF9}
-                        className={`border border-slate-300 p-2.5 text-right font-mono text-sm cursor-pointer transition ${
-                          showFieldCodes
-                            ? 'bg-amber-100 text-amber-900 font-mono text-xs'
-                            : staleTotal
-                            ? 'bg-amber-100 text-amber-800 underline'
-                            : 'bg-emerald-50 text-emerald-800'
-                        }`}
-                      >
-                        {!tableFormulaInserted ? (
-                          <span className="text-slate-400 font-normal italic text-xs">
-                            [Click 'Insert Formula' above]
+                {showTableVideos && (
+                  <div className="p-4 sm:p-6 bg-slate-950/70 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Video 1: How to Insert a Table */}
+                    <div className="space-y-2.5 bg-slate-900/90 p-4 rounded-xl border border-indigo-900/40">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 rounded-full bg-slate-800 text-slate-200 text-xs flex items-center justify-center font-bold">
+                            1
                           </span>
-                        ) : showFieldCodes ? (
-                          `{ =SUM(ABOVE) \\# "₦#,##0.00" }`
-                        ) : (
-                          `₦${calculatedTotal.toLocaleString()}.00`
-                        )}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                          <span className="text-xs font-bold text-white">
+                            How to Insert a Table
+                          </span>
+                        </div>
+                        <a
+                          href="https://www.youtube.com/watch?v=J_H0LEPz2gQ"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] text-indigo-300 hover:text-white flex items-center gap-1 transition"
+                        >
+                          <span>Open in YouTube</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                      <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black shadow-inner border border-slate-800">
+                        <iframe
+                          src="https://www.youtube.com/embed/J_H0LEPz2gQ"
+                          title="How to Insert a Table in Microsoft Word"
+                          className="w-full h-full border-0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        Learn how to insert grid tables, define rows and columns, and configure table dimensions in Microsoft Word.
+                      </p>
+                    </div>
 
-                {staleTotal && (
-                  <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-center justify-between">
-                    <span>
-                      ⚠️ Fee modified! In MS Word, formulas do not update until you tap <b>F9</b>.
+                    {/* Video 2: How to Repeat Table Headers Across Pages */}
+                    <div className="space-y-2.5 bg-slate-900/90 p-4 rounded-xl border border-indigo-900/40">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center font-bold">
+                            2
+                          </span>
+                          <span className="text-xs font-bold text-white">
+                            How to Repeat Table Headers Across Pages
+                          </span>
+                        </div>
+                        <a
+                          href="https://www.youtube.com/watch?v=NKPjF1j4Q1M"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] text-indigo-300 hover:text-white flex items-center gap-1 transition"
+                        >
+                          <span>Open in YouTube</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                      <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black shadow-inner border border-slate-800">
+                        <iframe
+                          src="https://www.youtube.com/embed/NKPjF1j4Q1M"
+                          title="How to Repeat Table Headers Across Pages in Microsoft Word"
+                          className="w-full h-full border-0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        Matches this exercise directly: how to select your header row and enable 'Repeat Header Rows' so tables spanning multiple pages automatically duplicate column titles!
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Formula Dialog Modal (Authentic Microsoft Word Dialog) */}
+              {showFormulaDialog && (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+                  <div className="bg-white rounded-xl max-w-md w-full shadow-2xl border border-slate-300 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                    {/* Dialog Titlebar */}
+                    <div className="bg-[#2B579A] text-white px-4 py-2.5 flex items-center justify-between">
+                      <div className="flex items-center gap-2 font-semibold text-xs tracking-wide">
+                        <span className="font-serif italic font-bold">fx</span>
+                        <span>Formula — Microsoft Word</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowFormulaDialog(false)}
+                        className="text-white/80 hover:text-white hover:bg-white/20 rounded p-1 transition cursor-pointer"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    {/* Dialog Body */}
+                    <div className="p-5 space-y-4 text-xs">
+                      <div className="space-y-1.5">
+                        <label className="font-bold text-slate-700 block">
+                          Formula:
+                        </label>
+                        <input
+                          type="text"
+                          value={formulaInputValue}
+                          readOnly
+                          className="w-full border border-slate-300 rounded px-3 py-1.5 font-mono text-sm bg-slate-50 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-[#2B579A]"
+                        />
+                        <p className="text-[11px] text-slate-500">
+                          💡 Word automatically populated <b>=SUM(ABOVE)</b> because numeric cells were detected directly above this row.
+                        </p>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="font-bold text-slate-700 block">
+                          Number format:
+                        </label>
+                        <select
+                          value={formulaNumberFormat}
+                          onChange={(e) => setFormulaNumberFormat(e.target.value)}
+                          className="w-full border border-slate-300 rounded px-2.5 py-1.5 bg-white text-slate-800 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-[#2B579A]"
+                        >
+                          <option value="₦#,##0.00">₦#,##0.00 (Nigerian Naira)</option>
+                          <option value="#,##0.00">#,##0.00 (Standard Decimal)</option>
+                          <option value="0.00%">0.00% (Percentage)</option>
+                          <option value="$#,##0.00">$#,##0.00 (US Dollar)</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="font-bold text-slate-700 block">
+                          Paste function:
+                        </label>
+                        <select
+                          disabled
+                          className="w-full border border-slate-300 rounded px-2.5 py-1.5 bg-slate-100 text-slate-500 font-mono text-xs cursor-not-allowed"
+                        >
+                          <option>SUM (Built-in Addition)</option>
+                        </select>
+                      </div>
+
+                      <div className="p-3 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-950 text-[11px] leading-relaxed">
+                        <b>How Word Evaluates =SUM(ABOVE):</b> Word sums all consecutive number cells moving upward from the active cell until it encounters a blank cell or column header row.
+                      </div>
+                    </div>
+
+                    {/* Dialog Buttons */}
+                    <div className="bg-slate-50 px-5 py-3 border-t border-slate-200 flex items-center justify-end gap-2.5">
+                      <button
+                        type="button"
+                        onClick={handleConfirmFormula}
+                        className="px-5 py-1.5 bg-[#2B579A] hover:bg-[#1E3F72] text-white rounded text-xs font-bold transition shadow-xs cursor-pointer"
+                      >
+                        OK
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowFormulaDialog(false)}
+                        className="px-4 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded text-xs font-semibold transition cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Educational Ribbon Explanation Banner */}
+              <div className="bg-white p-5 rounded-2xl border border-indigo-200 shadow-xs space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
+                    💡
+                  </span>
+                  <h4 className="font-bold text-sm text-[#17182B]">
+                    How Real Microsoft Word Tables Work (And Why F9 is Essential)
+                  </h4>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                    <span className="font-bold text-slate-800 block">
+                      1. Where is the Formula Button in Word?
+                    </span>
+                    <p className="text-slate-600 leading-relaxed text-[11px]">
+                      In real Word, you do <b>not</b> type formulas directly into cells like Excel. You click the target cell, then navigate to the top Ribbon: <b>Table Tools → Layout tab → Data group → Formula (fx)</b>.
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200 space-y-1">
+                    <span className="font-bold text-amber-900 block">
+                      2. What is F9 &amp; Why Doesn't Word Auto-Update?
+                    </span>
+                    <p className="text-amber-800 leading-relaxed text-[11px]">
+                      Word is a word processor, <i>not a spreadsheet</i>. Formulas are stored as static <b>Field Codes</b> ({'{ =SUM(ABOVE) }'}). When you change a number, Word leaves the total stale until you press <b>F9</b> (the universal <b>Update Field</b> key)!
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-1">
+                    <span className="font-bold text-emerald-900 block">
+                      3. Every Cell is Selectable &amp; Editable
+                    </span>
+                    <p className="text-emerald-800 leading-relaxed text-[11px]">
+                      Tap <b>any row</b> in the table below (Tuition, Science, Library, ICT) to select it, change its value, and watch Word's stale-state prompt guide you to press F9.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Realistic Microsoft Word Window & Ribbon Frame */}
+              <div className="bg-white rounded-2xl border border-slate-300 shadow-md overflow-hidden">
+                {/* Word Blue Title Bar */}
+                <div className="bg-[#2B579A] text-white px-4 py-2 flex items-center justify-between text-xs select-none">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5 opacity-90">
+                      <span className="hover:bg-white/20 p-1 rounded cursor-pointer">💾</span>
+                      <span className="hover:bg-white/20 p-1 rounded cursor-pointer">↩️</span>
+                      <span className="hover:bg-white/20 p-1 rounded cursor-pointer">↪️</span>
+                    </div>
+                    <span className="font-bold tracking-wide">
+                      PTA_Terminal_Invoice_2026.docx — Microsoft Word
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1 text-[11px] font-mono text-white/80">
+                    <span>Office 365 Pro</span>
+                  </div>
+                </div>
+
+                {/* Word Ribbon Tabs */}
+                <div className="bg-slate-100 border-b border-slate-200 px-3 pt-1.5 flex items-center gap-1 text-xs select-none overflow-x-auto">
+                  <button
+                    type="button"
+                    onClick={() => setActiveRibbonTab('home')}
+                    className={`px-3 py-1.5 font-medium rounded-t transition cursor-pointer ${
+                      activeRibbonTab === 'home'
+                        ? 'bg-white text-[#2B579A] font-bold border-t-2 border-[#2B579A]'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                    }`}
+                  >
+                    Home
+                  </button>
+                  <span className="px-3 py-1.5 font-medium text-slate-400 cursor-not-allowed">
+                    Insert
+                  </span>
+                  <span className="px-3 py-1.5 font-medium text-slate-400 cursor-not-allowed">
+                    Design
+                  </span>
+                  <span className="px-3 py-1.5 font-medium text-slate-400 cursor-not-allowed">
+                    Page Layout
+                  </span>
+                  <span className="px-3 py-1.5 font-medium text-slate-400 cursor-not-allowed">
+                    References
+                  </span>
+                  <span className="px-3 py-1.5 font-medium text-slate-400 cursor-not-allowed">
+                    Mailings
+                  </span>
+
+                  {/* Contextual Table Tools Tabs */}
+                  <div className="ml-2 pl-2 border-l border-slate-300 flex items-center gap-1">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 mr-1 hidden sm:inline">
+                      Table Tools:
                     </span>
                     <button
-                      onClick={handlePressF9}
-                      className="px-2.5 py-1 bg-amber-600 text-white rounded font-bold hover:bg-amber-700"
+                      type="button"
+                      onClick={() => setActiveRibbonTab('design')}
+                      className={`px-3 py-1.5 font-medium rounded-t transition cursor-pointer ${
+                        activeRibbonTab === 'design'
+                          ? 'bg-white text-[#2B579A] font-bold border-t-2 border-[#2B579A]'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                      }`}
                     >
-                      Press F9
+                      Table Design
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveRibbonTab('layout')}
+                      className={`px-3 py-1.5 font-medium rounded-t transition cursor-pointer relative ${
+                        activeRibbonTab === 'layout'
+                          ? 'bg-white text-[#2B579A] font-bold border-t-2 border-[#2B579A]'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                      }`}
+                    >
+                      <span>Layout</span>
+                      <span className="ml-1.5 text-[9px] px-1 py-0.2 rounded bg-amber-400 text-slate-950 font-bold uppercase">
+                        ACTIVE
+                      </span>
                     </button>
                   </div>
+                </div>
+
+                {/* Word Ribbon Action Toolbar (Table Tools > Layout) */}
+                <div className="bg-white p-3 border-b border-slate-200 flex flex-wrap items-center justify-between gap-4">
+                  {/* Left Groups: Standard Table Editing */}
+                  <div className="flex items-center gap-3 divide-x divide-slate-200 overflow-x-auto py-1">
+                    {/* Rows & Columns Group */}
+                    <div className="pr-3 flex items-center gap-1 text-[11px] text-slate-600">
+                      <span className="px-2 py-1 rounded hover:bg-slate-100 cursor-pointer text-slate-500">
+                        + Row Above
+                      </span>
+                      <span className="px-2 py-1 rounded hover:bg-slate-100 cursor-pointer text-slate-500">
+                        + Row Below
+                      </span>
+                    </div>
+
+                    {/* Alignment Group */}
+                    <div className="px-3 flex items-center gap-1 text-[11px] text-slate-600">
+                      <span className="px-2 py-1 rounded bg-slate-100 font-bold text-slate-800">
+                        Align Left
+                      </span>
+                      <span className="px-2 py-1 rounded hover:bg-slate-100 text-slate-500">
+                        Align Right
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Far Right: Word DATA GROUP (Formula, Repeat Headers, F9) */}
+                  <div className="flex items-center gap-2 p-1.5 bg-indigo-50/70 border-2 border-indigo-400/80 rounded-xl shadow-xs">
+                    <div className="text-[10px] font-black uppercase text-indigo-900 px-2 hidden sm:block">
+                      Data Group:
+                    </div>
+
+                    {/* Button 1: fx Formula Button */}
+                    <button
+                      type="button"
+                      onClick={handleOpenFormulaDialog}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs ${
+                        tableFormulaInserted
+                          ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                          : 'bg-[#2B579A] hover:bg-[#1E3F72] text-white animate-pulse'
+                      }`}
+                    >
+                      <span className="font-serif italic font-black text-sm">fx</span>
+                      <span>
+                        {tableFormulaInserted ? 'Formula (=SUM)' : 'Formula (fx)'}
+                      </span>
+                    </button>
+
+                    {/* Button 2: Repeat Header Rows Toggle */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = !repeatHeaderRows;
+                        setRepeatHeaderRows(next);
+                        setTableFeedback(
+                          next
+                            ? "✓ Repeat Header Rows enabled! Preview Page 2 below: Column headers now repeat automatically at the top."
+                            : "Repeat Header Rows disabled. Page 2 has no header row."
+                        );
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer ${
+                        repeatHeaderRows
+                          ? 'bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-700'
+                          : 'bg-white hover:bg-slate-100 border-slate-300 text-slate-700'
+                      }`}
+                    >
+                      <Layers className="w-3.5 h-3.5" />
+                      <span>{repeatHeaderRows ? 'Headers Repeated ✓' : 'Repeat Headers'}</span>
+                    </button>
+
+                    {/* Button 3: Alt + F9 Field Codes */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = !showFieldCodes;
+                        setShowFieldCodes(next);
+                        setTableFeedback(
+                          next
+                            ? 'Alt + F9 toggled: Underlying field code { =SUM(ABOVE) } is now visible!'
+                            : 'Alt + F9 toggled: Formatting field code hidden, displaying formatted value.'
+                        );
+                      }}
+                      className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition border cursor-pointer ${
+                        showFieldCodes
+                          ? 'bg-amber-200 border-amber-400 text-amber-950'
+                          : 'bg-white hover:bg-slate-100 border-slate-300 text-slate-700'
+                      }`}
+                    >
+                      <Code2 className="w-3.5 h-3.5 inline mr-1" />
+                      <span>{showFieldCodes ? '{ Field Code }' : 'Alt+F9'}</span>
+                    </button>
+
+                    {/* Button 4: F9 Key Update Field */}
+                    <button
+                      type="button"
+                      onClick={handlePressF9}
+                      className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1.5 cursor-pointer ${
+                        staleTotal
+                          ? 'bg-amber-500 hover:bg-amber-600 text-[#17182B] animate-bounce shadow-md ring-2 ring-amber-300'
+                          : 'bg-slate-900 hover:bg-slate-800 text-white'
+                      }`}
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${f9Pulse ? 'animate-spin' : ''}`} />
+                      <span>F9 (Update Field)</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Instant Feedback Toast */}
+                {tableFeedback && (
+                  <div className="bg-slate-900 text-slate-100 px-4 py-2.5 text-xs flex items-center justify-between border-t border-slate-800 animate-in fade-in">
+                    <span className="font-medium">{tableFeedback}</span>
+                    <span className="text-[10px] font-mono text-slate-400">
+                      Microsoft Word Ribbon Simulator
+                    </span>
+                  </div>
+                )}
+
+                {/* Document Workspace Area */}
+                <div className="p-6 bg-slate-100 space-y-6">
+                  {/* PAGE 1: PTA Fee Assessment Table */}
+                  <div className="bg-white p-6 rounded-xl border border-slate-300 shadow-sm space-y-4 max-w-3xl mx-auto">
+                    {/* Document Header */}
+                    <div className="border-b border-slate-200 pb-3 flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600 uppercase">
+                          Page 1 of 2 • Microsoft Word Table
+                        </span>
+                        <h3 className="font-serif font-bold text-sm text-[#17182B] mt-1">
+                          FORTUNE SECONDARY ACADEMY — JSS3 TERMINAL INVOICE
+                        </h3>
+                      </div>
+                      <div className="text-right text-[10px] text-slate-400 font-mono">
+                        <div>Word Table Tools</div>
+                        <div>Formula Mode: =SUM(ABOVE)</div>
+                      </div>
+                    </div>
+
+                    {/* Step-by-Step Guidance Banner */}
+                    <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-700">👉 Active Cell Selection:</span>
+                        <span className="font-mono font-bold text-indigo-700 uppercase bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
+                          {selectedTableCell === 'total'
+                            ? 'Grand Total (Formula Destination Cell)'
+                            : selectedTableCell
+                            ? `${selectedTableCell.toUpperCase()} ROW (Selected for Editing)`
+                            : 'None (Click any cell below)'}
+                        </span>
+                      </div>
+                      {selectedTableCell !== 'total' && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedTableCell('total')}
+                          className="text-[11px] font-bold text-[#2B579A] hover:underline cursor-pointer"
+                        >
+                          Select Grand Total Cell →
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Authentic Microsoft Word Multi-Row Table */}
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs text-left border-collapse border border-slate-300">
+                        <thead>
+                          <tr className="bg-slate-100 text-slate-800 font-bold border-b border-slate-300">
+                            <th className="border border-slate-300 p-2.5 w-12 text-center text-slate-500 font-mono">
+                              #
+                            </th>
+                            <th className="border border-slate-300 p-2.5">
+                              Fee Description (Item Name)
+                            </th>
+                            <th className="border border-slate-300 p-2.5 w-32 text-slate-600">
+                              Category
+                            </th>
+                            <th className="border border-slate-300 p-2.5 text-right w-44">
+                              Term Amount (₦)
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {/* Row 1: Tuition */}
+                          <tr
+                            onClick={() => setSelectedTableCell('tuition')}
+                            className={`transition cursor-pointer ${
+                              selectedTableCell === 'tuition'
+                                ? 'bg-indigo-50/80 ring-2 ring-inset ring-indigo-500'
+                                : 'hover:bg-slate-50'
+                            }`}
+                          >
+                            <td className="border border-slate-300 p-2.5 text-center font-mono text-slate-400">
+                              1
+                            </td>
+                            <td className="border border-slate-300 p-2.5 font-medium text-slate-800">
+                              Term Tuition &amp; Academic Instruction
+                            </td>
+                            <td className="border border-slate-300 p-2.5 text-slate-500">
+                              Core Academic
+                            </td>
+                            <td className="border border-slate-300 p-2.5 text-right">
+                              {selectedTableCell === 'tuition' ? (
+                                <div className="space-y-1">
+                                  <div className="flex items-center justify-end gap-1">
+                                    <span className="font-bold text-slate-500">₦</span>
+                                    <input
+                                      type="number"
+                                      value={tuitionAmount}
+                                      onChange={(e) =>
+                                        handleUpdateFee('tuition', Number(e.target.value) || 0)
+                                      }
+                                      className="w-28 text-right border-2 border-indigo-500 rounded px-1.5 py-0.5 font-mono bg-white font-bold text-indigo-900 focus:outline-none"
+                                    />
+                                  </div>
+                                  <div className="flex items-center justify-end gap-1 text-[10px]">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleUpdateFee('tuition', 55000);
+                                      }}
+                                      className="px-1.5 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold"
+                                    >
+                                      Set ₦55k
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleUpdateFee('tuition', 45000);
+                                      }}
+                                      className="px-1.5 py-0.5 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold"
+                                    >
+                                      Reset ₦45k
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <span className="font-mono font-bold text-slate-800">
+                                  ₦{tuitionAmount.toLocaleString()}.00
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+
+                          {/* Row 2: Science */}
+                          <tr
+                            onClick={() => setSelectedTableCell('science')}
+                            className={`transition cursor-pointer ${
+                              selectedTableCell === 'science'
+                                ? 'bg-indigo-50/80 ring-2 ring-inset ring-indigo-500'
+                                : 'hover:bg-slate-50'
+                            }`}
+                          >
+                            <td className="border border-slate-300 p-2.5 text-center font-mono text-slate-400">
+                              2
+                            </td>
+                            <td className="border border-slate-300 p-2.5 font-medium text-slate-800">
+                              Science Laboratory &amp; Chemicals Practical
+                            </td>
+                            <td className="border border-slate-300 p-2.5 text-slate-500">
+                              STEM Facility
+                            </td>
+                            <td className="border border-slate-300 p-2.5 text-right">
+                              {selectedTableCell === 'science' ? (
+                                <div className="space-y-1">
+                                  <div className="flex items-center justify-end gap-1">
+                                    <span className="font-bold text-slate-500">₦</span>
+                                    <input
+                                      type="number"
+                                      value={scienceAmount}
+                                      onChange={(e) =>
+                                        handleUpdateFee('science', Number(e.target.value) || 0)
+                                      }
+                                      className="w-28 text-right border-2 border-indigo-500 rounded px-1.5 py-0.5 font-mono bg-white font-bold text-indigo-900 focus:outline-none"
+                                    />
+                                  </div>
+                                  <div className="flex items-center justify-end gap-1 text-[10px]">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleUpdateFee('science', 20000);
+                                      }}
+                                      className="px-1.5 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold"
+                                    >
+                                      Set ₦20k
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleUpdateFee('science', 15000);
+                                      }}
+                                      className="px-1.5 py-0.5 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold"
+                                    >
+                                      Reset ₦15k
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <span className="font-mono font-bold text-slate-800">
+                                  ₦{scienceAmount.toLocaleString()}.00
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+
+                          {/* Row 3: Library */}
+                          <tr
+                            onClick={() => setSelectedTableCell('library')}
+                            className={`transition cursor-pointer ${
+                              selectedTableCell === 'library'
+                                ? 'bg-indigo-50/80 ring-2 ring-inset ring-indigo-500'
+                                : 'hover:bg-slate-50'
+                            }`}
+                          >
+                            <td className="border border-slate-300 p-2.5 text-center font-mono text-slate-400">
+                              3
+                            </td>
+                            <td className="border border-slate-300 p-2.5 font-medium text-slate-800">
+                              Digital Library &amp; Online LMS Subscription
+                            </td>
+                            <td className="border border-slate-300 p-2.5 text-slate-500">
+                              Learning Media
+                            </td>
+                            <td className="border border-slate-300 p-2.5 text-right">
+                              {selectedTableCell === 'library' ? (
+                                <div className="space-y-1">
+                                  <div className="flex items-center justify-end gap-1">
+                                    <span className="font-bold text-slate-500">₦</span>
+                                    <input
+                                      type="number"
+                                      value={libraryAmount}
+                                      onChange={(e) =>
+                                        handleUpdateFee('library', Number(e.target.value) || 0)
+                                      }
+                                      className="w-28 text-right border-2 border-indigo-500 rounded px-1.5 py-0.5 font-mono bg-white font-bold text-indigo-900 focus:outline-none"
+                                    />
+                                  </div>
+                                  <div className="flex items-center justify-end gap-1 text-[10px]">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleUpdateFee('library', 12000);
+                                      }}
+                                      className="px-1.5 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold"
+                                    >
+                                      Set ₦12k
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleUpdateFee('library', 8000);
+                                      }}
+                                      className="px-1.5 py-0.5 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold"
+                                    >
+                                      Reset ₦8k
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <span className="font-mono font-bold text-slate-800">
+                                  ₦{libraryAmount.toLocaleString()}.00
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+
+                          {/* Row 4: ICT */}
+                          <tr
+                            onClick={() => setSelectedTableCell('ict')}
+                            className={`transition cursor-pointer ${
+                              selectedTableCell === 'ict'
+                                ? 'bg-indigo-50/80 ring-2 ring-inset ring-indigo-500'
+                                : 'hover:bg-slate-50'
+                            }`}
+                          >
+                            <td className="border border-slate-300 p-2.5 text-center font-mono text-slate-400">
+                              4
+                            </td>
+                            <td className="border border-slate-300 p-2.5 font-medium text-slate-800">
+                              ICT Computing Labs &amp; High-Speed Internet
+                            </td>
+                            <td className="border border-slate-300 p-2.5 text-slate-500">
+                              Technology
+                            </td>
+                            <td className="border border-slate-300 p-2.5 text-right">
+                              {selectedTableCell === 'ict' ? (
+                                <div className="space-y-1">
+                                  <div className="flex items-center justify-end gap-1">
+                                    <span className="font-bold text-slate-500">₦</span>
+                                    <input
+                                      type="number"
+                                      value={ictAmount}
+                                      onChange={(e) =>
+                                        handleUpdateFee('ict', Number(e.target.value) || 0)
+                                      }
+                                      className="w-28 text-right border-2 border-indigo-500 rounded px-1.5 py-0.5 font-mono bg-white font-bold text-indigo-900 focus:outline-none"
+                                    />
+                                  </div>
+                                  <div className="flex items-center justify-end gap-1 text-[10px]">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleUpdateFee('ict', 18000);
+                                      }}
+                                      className="px-1.5 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold"
+                                    >
+                                      Set ₦18k
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleUpdateFee('ict', 12000);
+                                      }}
+                                      className="px-1.5 py-0.5 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold"
+                                    >
+                                      Reset ₦12k
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <span className="font-mono font-bold text-slate-800">
+                                  ₦{ictAmount.toLocaleString()}.00
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+
+                          {/* Grand Total Row (Formula Destination) */}
+                          <tr
+                            onClick={() => setSelectedTableCell('total')}
+                            className={`font-bold transition cursor-pointer ${
+                              selectedTableCell === 'total'
+                                ? 'bg-indigo-100/90 ring-2 ring-indigo-600'
+                                : 'bg-slate-50 hover:bg-slate-100'
+                            }`}
+                          >
+                            <td className="border border-slate-300 p-2.5 text-center font-mono text-indigo-800">
+                              ∑
+                            </td>
+                            <td className="border border-slate-300 p-2.5 text-[#17182B] flex items-center justify-between">
+                              <span className="text-sm">Grand Total (Payable Term Balance):</span>
+                              <span className="text-[10px] font-mono text-indigo-700 bg-white px-1.5 py-0.5 rounded border border-indigo-200">
+                                Formula Target Cell
+                              </span>
+                            </td>
+                            <td className="border border-slate-300 p-2.5 text-slate-500 text-[11px]">
+                              {tableFormulaInserted
+                                ? showFieldCodes
+                                  ? '{ Field Code }'
+                                  : '=SUM(ABOVE)'
+                                : 'No formula yet'}
+                            </td>
+                            <td
+                              className={`border border-slate-300 p-2.5 text-right font-mono transition ${
+                                !tableFormulaInserted
+                                  ? 'bg-amber-50 text-amber-800'
+                                  : showFieldCodes
+                                  ? 'bg-amber-100 text-amber-900 text-xs font-mono'
+                                  : staleTotal
+                                  ? 'bg-amber-100 text-amber-900 ring-2 ring-amber-400'
+                                  : 'bg-emerald-50 text-emerald-900'
+                              }`}
+                            >
+                              {!tableFormulaInserted ? (
+                                <div className="space-y-1">
+                                  <div className="text-[11px] text-amber-800 font-normal italic">
+                                    [Empty — Formula Not Inserted]
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleOpenFormulaDialog();
+                                    }}
+                                    className="px-2 py-1 bg-[#2B579A] hover:bg-[#1E3F72] text-white rounded text-[11px] font-bold shadow-xs cursor-pointer inline-flex items-center gap-1"
+                                  >
+                                    <span>+ Open Formula (fx)</span>
+                                  </button>
+                                </div>
+                              ) : showFieldCodes ? (
+                                <span className="font-mono text-xs font-bold text-amber-950">
+                                  {`{ =SUM(ABOVE) \\# "₦#,##0.00" }`}
+                                </span>
+                              ) : (
+                                <div className="space-y-1">
+                                  <div
+                                    className={`text-sm font-black ${
+                                      f9Pulse ? 'scale-105 text-emerald-600 transition' : ''
+                                    }`}
+                                  >
+                                    ₦{calculatedTotal.toLocaleString()}.00
+                                  </div>
+                                  {staleTotal && (
+                                    <div className="text-[10px] text-amber-900 bg-amber-200 px-1.5 py-0.5 rounded font-bold animate-pulse inline-flex items-center gap-1">
+                                      <span>⚠️ Stale: Press F9</span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* F9 Stale-State Callout Action */}
+                    {staleTotal && (
+                      <div className="p-3.5 rounded-xl bg-amber-50 border-2 border-amber-300 text-amber-950 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                        <div className="space-y-0.5">
+                          <div className="font-bold flex items-center gap-1.5 text-amber-900">
+                            <span>⚠️ A Table Figure Was Modified!</span>
+                          </div>
+                          <p className="text-[11px] text-amber-800 leading-relaxed">
+                            In Microsoft Word, the Grand Total stays at <b>₦{calculatedTotal.toLocaleString()}</b> until you press <b>F9</b> to recalculate all rows above.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handlePressF9}
+                          className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-black text-xs transition flex items-center justify-center gap-2 shadow-sm cursor-pointer shrink-0"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                          <span>Press F9 (Recalculate Now)</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* F9 Universal Keypad & Explanation Widget */}
+                  <div className="max-w-3xl mx-auto bg-white p-5 rounded-xl border border-slate-300 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-xs text-slate-800 uppercase tracking-wider">
+                          Universal Keyboard Shortcut:
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-bold border border-indigo-200">
+                          Active Listener Active
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed">
+                        Tap the physical <b>F9</b> key on your computer keyboard, or click the on-screen button to trigger Word's field calculation.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={handlePressF9}
+                        className={`px-6 py-3 rounded-xl font-mono font-black text-sm transition flex items-center gap-2 cursor-pointer shadow-md ${
+                          staleTotal
+                            ? 'bg-amber-500 hover:bg-amber-600 text-[#17182B] ring-4 ring-amber-300/60 animate-bounce'
+                            : 'bg-slate-900 hover:bg-slate-800 text-white border-b-4 border-slate-950 active:translate-y-1'
+                        }`}
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                        <span>F9</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setTuitionAmount(45000);
+                          setScienceAmount(15000);
+                          setLibraryAmount(8000);
+                          setIctAmount(12000);
+                          setTableFormulaInserted(false);
+                          setShowFieldCodes(false);
+                          setStaleTotal(false);
+                          setRepeatHeaderRows(false);
+                          setCalculatedTotal(80000);
+                          setSelectedTableCell('total');
+                          setTableFeedback('Table reset to initial default PTA assessment.');
+                        }}
+                        className="px-3 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-lg transition cursor-pointer"
+                      >
+                        Reset All
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* PAGE 2: Multi-Page Continuation Preview (Repeat Header Rows) */}
+                  <div className="max-w-3xl mx-auto bg-white p-6 rounded-xl border border-slate-300 shadow-sm space-y-4">
+                    <div className="flex items-center justify-between border-b pb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                          PAGE 2 OF 2
+                        </span>
+                        <span className="font-serif font-bold text-xs text-[#17182B]">
+                          INVOICE CONTINUATION (MULTI-PAGE TABLE)
+                        </span>
+                      </div>
+                      {repeatHeaderRows ? (
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Header Rows Repeated
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">
+                          ⚠️ Headers Missing on Page 2
+                        </span>
+                      )}
+                    </div>
+
+                    <table className="w-full text-xs text-left border-collapse border border-slate-300">
+                      {repeatHeaderRows ? (
+                        <thead>
+                          <tr className="bg-indigo-50 font-bold text-indigo-900 border-b-2 border-indigo-400">
+                            <th className="border border-slate-300 p-2.5 w-12 text-center text-indigo-700 font-mono">
+                              #
+                            </th>
+                            <th className="border border-slate-300 p-2.5">
+                              <div className="flex items-center justify-between">
+                                <span>Item Description</span>
+                                <span className="text-[9px] font-mono text-indigo-600 bg-white px-1.5 py-0.5 rounded border border-indigo-200">
+                                  🔁 Auto-Repeated
+                                </span>
+                              </div>
+                            </th>
+                            <th className="border border-slate-300 p-2.5 w-32 text-indigo-700">
+                              Category
+                            </th>
+                            <th className="border border-slate-300 p-2.5 text-right w-44">
+                              Term Amount (₦)
+                            </th>
+                          </tr>
+                        </thead>
+                      ) : (
+                        <thead>
+                          <tr className="bg-slate-100 text-slate-400 italic text-[11px]">
+                            <th colSpan={4} className="border border-slate-300 p-2 text-center">
+                              [No column headers on Page 2 — Reader must flip back to Page 1 to know columns]
+                            </th>
+                          </tr>
+                        </thead>
+                      )}
+                      <tbody>
+                        <tr>
+                          <td className="border border-slate-300 p-2.5 text-center font-mono text-slate-400">
+                            5
+                          </td>
+                          <td className="border border-slate-300 p-2.5 text-slate-700 font-medium">
+                            Boarding &amp; Housekeeping Levy
+                          </td>
+                          <td className="border border-slate-300 p-2.5 text-slate-500">
+                            Residential
+                          </td>
+                          <td className="border border-slate-300 p-2.5 text-right font-mono font-bold text-slate-800">
+                            ₦30,000.00
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="border border-slate-300 p-2.5 text-center font-mono text-slate-400">
+                            6
+                          </td>
+                          <td className="border border-slate-300 p-2.5 text-slate-700 font-medium">
+                            Medical Clinic &amp; Insurance Levy
+                          </td>
+                          <td className="border border-slate-300 p-2.5 text-slate-500">
+                            Healthcare
+                          </td>
+                          <td className="border border-slate-300 p-2.5 text-right font-mono font-bold text-slate-800">
+                            ₦6,500.00
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="border border-slate-300 p-2.5 text-center font-mono text-slate-400">
+                            7
+                          </td>
+                          <td className="border border-slate-300 p-2.5 text-slate-700 font-medium">
+                            Sports &amp; Extracurricular Activities
+                          </td>
+                          <td className="border border-slate-300 p-2.5 text-slate-500">
+                            Co-Curricular
+                          </td>
+                          <td className="border border-slate-300 p-2.5 text-right font-mono font-bold text-slate-800">
+                            ₦4,500.00
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <div
+                      className={`p-3 rounded-xl border text-xs leading-relaxed ${
+                        repeatHeaderRows
+                          ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                          : 'bg-amber-50 border-amber-200 text-amber-900'
+                      }`}
+                    >
+                      {repeatHeaderRows ? (
+                        <div className="space-y-1">
+                          <div className="font-bold flex items-center gap-1.5">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            <span>Secret in Action: Table Headers Repeat Cleanly!</span>
+                          </div>
+                          <p className="text-[11px] opacity-90">
+                            By enabling <b>Table Tools Layout → Repeat Header Rows</b>, Word automatically duplicates the column title row across page breaks without manual re-typing.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          <div className="font-bold">⚠️ Notice the Missing Header Rows on Page 2:</div>
+                          <p className="text-[11px] opacity-90">
+                            When tables break across pages, readers lose context. Click <b>"Repeat Headers"</b> on the Layout ribbon above to enable Erin Wright's multi-page table secret!
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pass Check Banner */}
+              <div
+                className={`p-4 rounded-xl border flex items-center justify-between ${
+                  tableFormulaInserted && !staleTotal && repeatHeaderRows
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900 shadow-xs'
+                    : 'bg-amber-50 border-amber-200 text-amber-900'
+                }`}
+              >
+                <div>
+                  <div className="font-bold text-xs flex items-center gap-2">
+                    {tableFormulaInserted && !staleTotal && repeatHeaderRows ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        <span>🎉 PASS CHECK COMPLETE: Word Table Math &amp; Repeat Headers Mastered!</span>
+                      </>
+                    ) : (
+                      <span>
+                        Target: Insert formula (=SUM(ABOVE)) via Ribbon, modify any row &amp; recalculate with F9, and enable Repeat Header Rows.
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-[11px] opacity-80 mt-0.5">
+                    Status: Formula Active ({tableFormulaInserted ? 'Done ✓' : 'Pending'}) • Recalculated via F9 (
+                    {!staleTotal && tableFormulaInserted ? 'Done ✓' : 'Pending'}) • Repeat Header Rows (
+                    {repeatHeaderRows ? 'Active ✓' : 'Pending'})
+                  </div>
+                </div>
+                {tableFormulaInserted && !staleTotal && repeatHeaderRows ? (
+                  <span className="px-3 py-1 bg-emerald-600 text-white rounded-lg text-xs font-bold shrink-0">
+                    Passed ✓
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleConfirmFormula();
+                      setRepeatHeaderRows(true);
+                      handlePressF9();
+                    }}
+                    className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition shrink-0 cursor-pointer"
+                  >
+                    Solve Now
+                  </button>
                 )}
               </div>
             </div>

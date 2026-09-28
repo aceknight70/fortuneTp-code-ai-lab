@@ -37,6 +37,7 @@ export function HomeDashboardRoom({
   onNavigateRoom,
   onSelectWeekForLab,
 }: HomeDashboardRoomProps) {
+  const [recentFiles, setRecentFiles] = useState<CaiFile[]>([]);
   const isDT =
     cls.programme === 'digital_technologies' ||
     (cls.programme as string) === 'digital_tech';

@@ -398,7 +398,7 @@ export function SchemeOfWorkRoom({
                           <div className="p-3 rounded-lg bg-amber-50/60 border border-amber-200 space-y-1">
                             <span className="font-bold text-amber-900 block">🟡 Student Action:</span>
                             <p className="text-amber-800">
-                              Click bottom Grand Total cell. Go to Table Tools Layout → Formula. Enter =SUM(ABOVE) with format ₦#,##0.00. Modify Tuition from ₦45,000 to ₦55,000. Select total and press F9.
+                              Click Grand Total cell. On Word Ribbon, go to Table Tools Layout → Data group → Formula (fx). In the dialog, verify =SUM(ABOVE) with format ₦#,##0.00 and click OK. Select and modify any fee row (e.g. Tuition: ₦45,000 → ₦55,000). Notice Word does not auto-update like Excel. Press F9 (Word's Update Field key) or Right-Click → Update Field to recalculate the dynamic sum.
                             </p>
                           </div>
                           <div className="p-3 rounded-lg bg-emerald-50/60 border border-emerald-200 space-y-1">
